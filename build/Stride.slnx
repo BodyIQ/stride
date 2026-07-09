@@ -482,6 +482,10 @@
       <BuildType Solution="Rider|*" Project="Debug" />
       <Build Solution="Rider|*" Project="false" />
     </Project>
+    <Project Path="../sources/templates/Stride.Templates.CodeOnly/Stride.Templates.CodeOnly.csproj">
+      <BuildType Solution="Rider|*" Project="Debug" />
+      <Build Solution="Rider|*" Project="false" />
+    </Project>
     <Project Path="../sources/templates/Stride.Templates.Games/Stride.Templates.Games.csproj">
       <BuildType Solution="Rider|*" Project="Debug" />
       <Build Solution="Rider|*" Project="false" />

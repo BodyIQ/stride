@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Stride contributors",
+  "classifications": [ "Stride", "Game", "F#", "macOS" ],
+  "name": "Stride macOS code-only game (F#)",
+  "identity": "Stride.Templates.CodeOnly.macOS.FSharp",
+  "groupIdentity": "Stride.Templates.CodeOnly",
+  "shortName": "stride-macos-fsharp",
+  "tags": {
+    "language": "F#",
+    "type": "project"
+  },
+  "sourceName": "MyTemplate",
+  "preferNameDirectory": true
+}

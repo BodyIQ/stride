@@ -1,6 +1,6 @@
 # Stride `dotnet new` templates
 
-C# project templates for [Stride](https://stride3d.net), an open-source 3D game engine. Use them to scaffold a new Stride game from the command line.
+Project templates for [Stride](https://stride3d.net), an open-source 3D game engine. Use them to scaffold a new Stride game from the command line.
 
 ```bash
 dotnet new install Stride.Templates.Games
@@ -15,6 +15,7 @@ cd MyGame && dotnet run --project MyGame.Windows
 | `Stride.Templates.Games` | `stride-game` | Blank starter; bundled with the GameStudio installer |
 | `Stride.Templates.Games.Starters` | `stride-fps`, `stride-platformer2d`, `stride-topdownrpg`, `stride-thirdpersonplatformer`, `stride-vrsandbox` | Opinionated genre starters |
 | `Stride.Templates.Samples` | 18 feature demos (tutorials, graphics, physics, UI, particles, input, audio…) | Self-contained samples |
+| `Stride.Templates.CodeOnly` | `stride-macos-fsharp` | Code-only F# starter for macOS |
 
 `dotnet new -l` after installing any of these lists every available `stride-*` short name.
 

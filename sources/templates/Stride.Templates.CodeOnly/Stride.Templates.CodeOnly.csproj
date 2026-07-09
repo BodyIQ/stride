@@ -1,0 +1,98 @@
+<Project Sdk="Microsoft.Build.NoTargets" TreatAsLocalProperty="StrideSkipAutoPack">
+  <PropertyGroup>
+    <PackageId>Stride.Templates.CodeOnly</PackageId>
+    <Title>Stride Code-Only Templates</Title>
+    <Description>dotnet new templates for code-only Stride projects.</Description>
+    <PackageTags>dotnet-new;templates;stride;stride-template;stride-code-only;fsharp;gamedev</PackageTags>
+  </PropertyGroup>
+
+  <Import Project="$(StrideRoot)sources\targets\Stride.NuGetVersion.props" />
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>true</IsPackable>
+    <PackageType>Template</PackageType>
+    <Authors>Stride contributors</Authors>
+    <Copyright>Copyright Stride contributors</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://stride3d.net</PackageProjectUrl>
+    <PackageIcon>nuget-icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/gurdasnijor/stride</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageVersion Condition="'$(PackageVersion)' == ''">$(StrideNuGetVersion)</PackageVersion>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <NoDefaultExcludes>true</NoDefaultExcludes>
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+
+    <TemplateSourceRoot>$(MSBuildProjectDirectory)/templates</TemplateSourceRoot>
+    <TemplateContentRoot>$(MSBuildProjectDirectory)/obj/template-content</TemplateContentRoot>
+  </PropertyGroup>
+
+  <Import Project="$(StrideRoot)sources/targets/Stride.WorktreeVersion.targets"
+          Condition="'$(_StrideWorktreeVersionTargetsImported)' != 'true'" />
+
+  <Target Name="StrideCodeOnlyTemplatesAppendWorktreeVersion"
+          DependsOnTargets="StrideEnsureWorktreeVersion"
+          BeforeTargets="StrideCodeOnlyGenerateTemplateContent;_GetOutputItemsFromPack;GenerateNuspec;_GetProjectVersion">
+    <PropertyGroup Condition="'$(StrideWorktreeSuffix)' != '' And !$(PackageVersion.EndsWith('$(StrideWorktreeSuffix)'))">
+      <PackageVersion>$(PackageVersion)$(StrideWorktreeSuffix)</PackageVersion>
+    </PropertyGroup>
+    <PropertyGroup>
+      <_StrideCodeOnlyTemplateEngineVersion>$(StrideNuGetVersion)</_StrideCodeOnlyTemplateEngineVersion>
+      <_StrideCodeOnlyTemplateEngineVersion Condition="'$(StrideWorktreeSuffix)' != '' And !$(_StrideCodeOnlyTemplateEngineVersion.EndsWith('$(StrideWorktreeSuffix)'))">$(_StrideCodeOnlyTemplateEngineVersion)$(StrideWorktreeSuffix)</_StrideCodeOnlyTemplateEngineVersion>
+    </PropertyGroup>
+  </Target>
+
+  <PropertyGroup>
+    <GetPackageVersionDependsOn>$(GetPackageVersionDependsOn);StrideCodeOnlyTemplatesAppendWorktreeVersion</GetPackageVersionDependsOn>
+  </PropertyGroup>
+
+  <Import Project="$(StrideRoot)sources\targets\Stride.AutoPackDeploy.targets" />
+
+  <Target Name="StrideInstallTemplate" AfterTargets="StrideAutoPackDeploy"
+          Condition="'$(StrideInstallTemplate)' == 'true' AND '$(StrideSkipAutoPack)' != 'true'">
+    <Exec Command="dotnet new uninstall $(PackageId)" IgnoreExitCode="true" />
+    <Exec Command="dotnet new install &quot;$(PackageOutputPath)$(PackageId).$(PackageVersion).nupkg&quot;" />
+  </Target>
+
+  <ItemGroup>
+    <None Include="$(StrideRoot)sources/sdk/Stride.Build.Sdk/nuget-icon.png" Pack="true" PackagePath="" Visible="false" />
+    <None Include="$(StrideRoot)sources/templates/PackageReadme.md" Pack="true" PackagePath="README.md" Visible="false" />
+  </ItemGroup>
+
+  <Target Name="StrideCodeOnlyGenerateTemplateContent"
+          DependsOnTargets="StrideCodeOnlyTemplatesAppendWorktreeVersion"
+          BeforeTargets="_GetPackageFiles;GenerateNuspec">
+    <RemoveDir Directories="$(TemplateContentRoot)" Condition="Exists('$(TemplateContentRoot)')" />
+
+    <ItemGroup>
+      <_StrideCodeOnlyTemplateSource Include="$(TemplateSourceRoot)/**/*"
+                                     Exclude="$(TemplateSourceRoot)/**/bin/**;$(TemplateSourceRoot)/**/obj/**" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(_StrideCodeOnlyTemplateSource)"
+          DestinationFiles="@(_StrideCodeOnlyTemplateSource->'$(TemplateContentRoot)/%(RecursiveDir)%(Filename)%(Extension)')" />
+
+    <ItemGroup>
+      <_StrideCodeOnlyTemplateText Include="$(TemplateContentRoot)/**/*.fsproj;$(TemplateContentRoot)/**/*.fs;$(TemplateContentRoot)/**/*.json;$(TemplateContentRoot)/**/*.md" />
+    </ItemGroup>
+
+    <WriteLinesToFile File="%(_StrideCodeOnlyTemplateText.Identity)"
+                      Lines="$([System.IO.File]::ReadAllText('%(_StrideCodeOnlyTemplateText.Identity)').Replace('$EngineVersion$', '$(_StrideCodeOnlyTemplateEngineVersion)'))"
+                      Overwrite="true"
+                      WriteOnlyWhenDifferent="true" />
+
+    <ItemGroup>
+      <_StrideCodeOnlyTemplateFiles Include="$(TemplateContentRoot)/**/*"
+                                    Exclude="$(TemplateContentRoot)/**/bin/**;$(TemplateContentRoot)/**/obj/**" />
+      <_PackageFiles Include="@(_StrideCodeOnlyTemplateFiles)">
+        <BuildAction>Content</BuildAction>
+        <PackagePath>content/%(RecursiveDir)%(Filename)%(Extension)</PackagePath>
+      </_PackageFiles>
+    </ItemGroup>
+  </Target>
+</Project>

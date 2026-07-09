@@ -1,12 +1,13 @@
 # Stride `dotnet new` Templates
 
-Three NuGet packages ship Stride project templates for the `dotnet new` engine:
+Four NuGet packages ship Stride project templates for the `dotnet new` engine:
 
 | Package | Contents | Distribution |
 |---|---|---|
 | **`Stride.Templates.Games`** | `stride-game` (blank NewGame starter) | Bundled with GameStudio installer |
 | **`Stride.Templates.Games.Starters`** | `stride-fps`, `stride-platformer2d`, `stride-topdownrpg`, `stride-thirdpersonplatformer`, `stride-vrsandbox` | nuget.org (CLI install / future template store) |
 | **`Stride.Templates.Samples`** | 18 feature demos (tutorials, games, graphics, physics, UI, particles, input, audio) | nuget.org (CLI install / future template store) |
+| **`Stride.Templates.CodeOnly`** | `stride-macos-fsharp` (code-only F# starter for macOS) | Local/fork package feed while incubating |
 
 GameStudio's "New Project" dialog and CLI `dotnet new` consume the same packages — there is one template flow, not two.
 
@@ -37,6 +38,14 @@ cd MyJumpyJet && dotnet run --project MyJumpyJet.Windows
 
 `dotnet new -l` after the installs lists every available stride-* short name.
 
+Code-only F# starter:
+
+```bash
+dotnet new install Stride.Templates.CodeOnly
+dotnet new stride-macos-fsharp -n MyFSharpGame
+cd MyFSharpGame && dotnet run
+```
+
 Common parameters (template-dependent):
 
 | Parameter | Values | Meaning |
@@ -51,16 +60,18 @@ Common parameters (template-dependent):
 
 ## Developing locally
 
-Building any of the three template projects produces a `.nupkg` in `bin/packages/` and auto-deploys it to `%LocalAppData%\stride\nugetdev` so the GameStudio bridge picks it up on next editor launch:
+Building any of the template projects produces a `.nupkg` in `bin/packages/` and auto-deploys it to `%LocalAppData%\stride\nugetdev` so the GameStudio bridge picks it up on next editor launch:
 
 ```bash
 dotnet build sources/templates/Stride.Templates.Games/Stride.Templates.Games.csproj
+dotnet build sources/templates/Stride.Templates.CodeOnly/Stride.Templates.CodeOnly.csproj
 ```
 
 Opt in to register the freshly-built `.nupkg` with your global `dotnet new` registry on every build — handy when iterating on template content and testing via CLI:
 
 ```bash
 dotnet build sources/templates/Stride.Templates.Games/Stride.Templates.Games.csproj -p:StrideInstallTemplate=true
+dotnet build sources/templates/Stride.Templates.CodeOnly/Stride.Templates.CodeOnly.csproj -p:StrideInstallTemplate=true
 ```
 
 For persistent opt-in across builds, drop a `Directory.Build.user.props` in your checkout root (gitignored) with:
