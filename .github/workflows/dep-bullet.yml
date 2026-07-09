@@ -36,7 +36,7 @@ on:
 jobs:
   build-windows:
     name: Build libbulletc (Windows ${{ matrix.arch }})
-    runs-on: windows-2025-vs2026
+    runs-on: blacksmith-4vcpu-windows-2025
     strategy:
       fail-fast: false
       matrix:
@@ -94,7 +94,7 @@ jobs:
 
   build-linux:
     name: Build libbulletc (Linux x64)
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Checkout BulletSharpPInvoke (+ bullet submodule)
         uses: actions/checkout@v4
@@ -132,7 +132,7 @@ jobs:
 
   build-macos:
     name: Build libbulletc (macOS arm64)
-    runs-on: macos-15
+    runs-on: blacksmith-6vcpu-macos-15
     steps:
       - name: Checkout BulletSharpPInvoke (+ bullet submodule)
         uses: actions/checkout@v4
@@ -167,7 +167,7 @@ jobs:
 
   build-ios:
     name: Build libbulletc (${{ matrix.rid }})
-    runs-on: macos-15
+    runs-on: blacksmith-6vcpu-macos-15
     strategy:
       fail-fast: false
       matrix:
@@ -247,7 +247,7 @@ jobs:
   collect:
     name: Collect all platforms
     needs: [build-windows, build-linux, build-macos, build-ios]
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Checkout BulletSharpPInvoke (+ bullet submodule for hash)
         uses: actions/checkout@v4

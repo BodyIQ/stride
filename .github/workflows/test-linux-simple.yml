@@ -37,7 +37,7 @@ concurrency:
 jobs:
   Linux-Tests:
     name: Linux (Simple, ${{ github.event.inputs.build-type || inputs.build-type || 'Debug' }})
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 20
     steps:
       # Full checkout: the Simple test solutions build Stride.Templates.*, which

@@ -26,7 +26,7 @@ jobs:
   #
   Validate:
     name: Validate
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Check deploy requires signing
         if: ${{ inputs.deploy && !inputs.sign }}
@@ -55,7 +55,7 @@ jobs:
   Package:
     name: Package Launcher
     needs: Validate
-    runs-on: windows-latest
+    runs-on: blacksmith-4vcpu-windows-2025
     environment: production
     outputs:
       version: ${{ steps.version.outputs.version }}
@@ -124,7 +124,7 @@ jobs:
     name: Deploy Launcher
     if: ${{ inputs.deploy && inputs.sign }}
     needs: Package
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@v4  # full history + tags for the launcher-scoped changelog
         with:

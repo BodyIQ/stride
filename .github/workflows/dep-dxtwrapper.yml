@@ -34,7 +34,7 @@ on:
 jobs:
   build-windows:
     name: Build directxtex (Windows ${{ matrix.arch }})
-    runs-on: windows-2025-vs2026
+    runs-on: blacksmith-4vcpu-windows-2025
     strategy:
       fail-fast: false
       matrix:
@@ -78,7 +78,7 @@ jobs:
 
   build-linux:
     name: Build directxtex (Linux x64)
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@v4
         with:
@@ -152,7 +152,7 @@ jobs:
 
   build-macos:
     name: Build directxtex (macOS arm64)
-    runs-on: macos-15
+    runs-on: blacksmith-6vcpu-macos-15
     steps:
       - uses: actions/checkout@v4
         with:
@@ -227,7 +227,7 @@ jobs:
   collect:
     name: Collect all platforms
     needs: [build-windows, build-linux, build-macos]
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Checkout DirectXTex (for commit hash)
         uses: actions/checkout@v4

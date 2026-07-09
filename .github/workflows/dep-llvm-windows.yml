@@ -22,7 +22,7 @@ jobs:
   pack:
     name: Repackage LLVM ${{ github.event.inputs.llvm-version }}
     # Windows runner for the preinstalled nuget.exe (nuspec-based pack, no csproj).
-    runs-on: windows-2025-vs2026
+    runs-on: blacksmith-4vcpu-windows-2025
     steps:
       - uses: actions/checkout@v4
         with:
@@ -73,7 +73,7 @@ jobs:
   publish:
     name: Sign & Publish to NuGet.org
     needs: pack
-    runs-on: windows-2025-vs2026
+    runs-on: blacksmith-4vcpu-windows-2025
     environment: production
     steps:
       - name: Install signing tool

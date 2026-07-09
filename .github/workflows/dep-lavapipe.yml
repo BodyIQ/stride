@@ -32,7 +32,7 @@ on:
 jobs:
   build-windows:
     name: Build Lavapipe (Windows x64)
-    runs-on: windows-2025-vs2026
+    runs-on: blacksmith-4vcpu-windows-2025
     steps:
       - name: Checkout Stride
         uses: actions/checkout@v4
@@ -165,7 +165,7 @@ jobs:
     name: Build Lavapipe (Windows ARM64)
     # GitHub-hosted native Windows-on-ARM runner. Switch to a custom runner image
     # if you have one (mirror the x64 job's "windows-2025-vs2026" naming).
-    runs-on: windows-11-arm
+    runs-on: blacksmith-4vcpu-windows-2025
     steps:
       - name: Checkout Stride
         uses: actions/checkout@v4
@@ -285,7 +285,7 @@ jobs:
 
   build-linux:
     name: Build Lavapipe (Linux x64)
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Checkout Stride
         uses: actions/checkout@v4
@@ -382,7 +382,7 @@ jobs:
 
   build-macos:
     name: Build Lavapipe (macOS ARM64)
-    runs-on: macos-15
+    runs-on: blacksmith-6vcpu-macos-15
     steps:
       - name: Checkout Stride
         uses: actions/checkout@v4
@@ -442,7 +442,7 @@ jobs:
   pack:
     name: Pack & Publish NuGet
     needs: [build-windows, build-windows-arm64, build-linux, build-macos]
-    runs-on: windows-2025-vs2026
+    runs-on: blacksmith-4vcpu-windows-2025
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -521,7 +521,7 @@ jobs:
   publish:
     name: Sign & Publish to NuGet.org
     needs: pack
-    runs-on: windows-2025-vs2026
+    runs-on: blacksmith-4vcpu-windows-2025
     environment: production
     steps:
       - name: Install signing tool

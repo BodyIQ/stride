@@ -36,7 +36,7 @@ on:
 
 jobs:
   Deploy:
-    runs-on: ubuntu-latest  # NuGet push doesn't need Windows
+    runs-on: blacksmith-4vcpu-ubuntu-2404  # NuGet push doesn't need Windows
     environment: production  # Requires manual approval in GitHub settings
     permissions:
       contents: write

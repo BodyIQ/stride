@@ -18,7 +18,7 @@ on:
 jobs:
   pack:
     name: Pack Stride.GNU.Gettext / Getopt
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Checkout Gettext.NET
         uses: actions/checkout@v4
@@ -52,7 +52,7 @@ jobs:
     if: github.repository == 'stride3d/stride'
     # The sign tool is Windows-only (P/Invokes kernel32), so signing runs on Windows even
     # though the managed pack above runs on Linux.
-    runs-on: windows-2025-vs2026
+    runs-on: blacksmith-4vcpu-windows-2025
     environment: production
     steps:
       - name: Install signing tool

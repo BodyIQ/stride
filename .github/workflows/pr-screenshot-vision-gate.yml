@@ -21,7 +21,7 @@ jobs:
     # Only PR-triggered runs carry a PR head to post a check on. Dispatch/schedule runs of Test End-User
     # are trusted and keyed (nothing gets deferred), so they need no gate.
     if: github.event.workflow_run.event == 'pull_request'
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       # Base checkout: trusted comparator source + gold baselines to judge against — pinned EXPLICITLY to
       # the repo default branch, never the PR. This is the key-exfiltration boundary: the gate runs with

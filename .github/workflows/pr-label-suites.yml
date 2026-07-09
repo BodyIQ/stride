@@ -82,7 +82,7 @@ jobs:
   label-gate:
     needs: [changes, enduser, editor, ios, android]
     if: always()
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Fail if any forced suite failed or was cancelled
         env:

@@ -85,7 +85,7 @@ jobs:
     # macOS host: iOS Simulator only runs on macOS. macos-26 ships Xcode 26.x (we select 26.5
     # below to match the .NET iOS 26.5 SDK pack's strict version check). macos-15's newest Xcode
     # is 26.3, which the 26.5 pack rejects.
-    runs-on: macos-26
+    runs-on: blacksmith-6vcpu-macos-26
     timeout-minutes: 45
     env:
       DOTNET_NUGET_SIGNATURE_VERIFICATION: "false"

@@ -8,8 +8,6 @@ name: Build Windows (Full, VS MSBuild)
 # all VS users run would be exercised only at release time.
 
 on:
-  schedule:
-    - cron: '52 4 * * *'
   workflow_dispatch:
     inputs:
       build-type:
@@ -19,13 +17,6 @@ on:
         options:
           - Debug
           - Release
-  pull_request:
-    # Build-logic paths only: the places engine-compat regressions actually come from.
-    paths:
-      - 'sources/sdk/**'
-      - 'sources/targets/**'
-      - 'sources/native/**'
-      - '.github/workflows/build-windows-full-msbuild.yml'
 
 concurrency:
   group: build-windows-full-msbuild-${{ github.event.pull_request.number || github.ref }}
@@ -35,7 +26,7 @@ jobs:
   Windows-MSBuild:
     name: Windows Full (VS MSBuild, ${{ github.event.inputs.build-type || 'Debug' }})
     if: github.event_name != 'pull_request' || github.event.pull_request.draft != true
-    runs-on: windows-2025-vs2026
+    runs-on: blacksmith-4vcpu-windows-2025
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4

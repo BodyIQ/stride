@@ -35,6 +35,10 @@ on:
         description: Run macOS jobs
         type: boolean
         default: true
+      windows:
+        description: Run Windows jobs
+        type: boolean
+        default: false
 
 permissions:
   checks: write
@@ -75,7 +79,7 @@ jobs:
 
   VS-Package:
     needs: changes
-    if: (github.event.pull_request.draft != true || contains(github.event.pull_request.labels.*.name, 'ci-run-on-draft')) && needs.changes.outputs.full == 'true'
+    if: (github.event_name == 'workflow_dispatch' && inputs.windows) && (github.event.pull_request.draft != true || contains(github.event.pull_request.labels.*.name, 'ci-run-on-draft')) && needs.changes.outputs.full == 'true'
     uses: ./.github/workflows/build-vspackage.yml
     with:
       build-type: Debug   # Release has a bug and cannot build
@@ -104,7 +108,7 @@ jobs:
 
   Windows-Runtime-D3D11:
     needs: changes
-    if: (github.event.pull_request.draft != true || contains(github.event.pull_request.labels.*.name, 'ci-run-on-draft')) && needs.changes.outputs.runtime == 'true'
+    if: (github.event_name == 'workflow_dispatch' && inputs.windows) && (github.event.pull_request.draft != true || contains(github.event.pull_request.labels.*.name, 'ci-run-on-draft')) && needs.changes.outputs.runtime == 'true'
     uses: ./.github/workflows/build-windows-runtime.yml
     with:
       build-type: Release
@@ -112,7 +116,7 @@ jobs:
 
   Windows-Runtime-D3D12:
     needs: changes
-    if: (github.event.pull_request.draft != true || contains(github.event.pull_request.labels.*.name, 'ci-run-on-draft')) && needs.changes.outputs.runtime == 'true'
+    if: (github.event_name == 'workflow_dispatch' && inputs.windows) && (github.event.pull_request.draft != true || contains(github.event.pull_request.labels.*.name, 'ci-run-on-draft')) && needs.changes.outputs.runtime == 'true'
     uses: ./.github/workflows/build-windows-runtime.yml
     with:
       build-type: Release
@@ -120,7 +124,7 @@ jobs:
 
   Windows-Runtime-Vulkan:
     needs: changes
-    if: (github.event.pull_request.draft != true || contains(github.event.pull_request.labels.*.name, 'ci-run-on-draft')) && needs.changes.outputs.runtime == 'true'
+    if: (github.event_name == 'workflow_dispatch' && inputs.windows) && (github.event.pull_request.draft != true || contains(github.event.pull_request.labels.*.name, 'ci-run-on-draft')) && needs.changes.outputs.runtime == 'true'
     uses: ./.github/workflows/build-windows-runtime.yml
     with:
       build-type: Release
@@ -129,7 +133,7 @@ jobs:
   ### Full Windows build (engine + editor + assets + samples) ###
   Windows-Full:
     needs: changes
-    if: (github.event.pull_request.draft != true || contains(github.event.pull_request.labels.*.name, 'ci-run-on-draft')) && needs.changes.outputs.full == 'true'
+    if: (github.event_name == 'workflow_dispatch' && inputs.windows) && (github.event.pull_request.draft != true || contains(github.event.pull_request.labels.*.name, 'ci-run-on-draft')) && needs.changes.outputs.full == 'true'
     uses: ./.github/workflows/build-windows-full.yml
     with:
       build-type: Debug
@@ -141,6 +145,7 @@ jobs:
     needs: [changes, Windows-Runtime-D3D11]
     if: |
       !cancelled()
+      && (github.event_name == 'workflow_dispatch' && inputs.windows)
       && (github.event.pull_request.draft != true || contains(github.event.pull_request.labels.*.name, 'ci-run-on-draft'))
       && needs.changes.outputs.runtime == 'true'
       && needs['Windows-Runtime-D3D11'].result != 'failure'
@@ -154,6 +159,7 @@ jobs:
     needs: [changes, Windows-Runtime-D3D11]
     if: |
       !cancelled()
+      && (github.event_name == 'workflow_dispatch' && inputs.windows)
       && (github.event.pull_request.draft != true || contains(github.event.pull_request.labels.*.name, 'ci-run-on-draft'))
       && needs.changes.outputs.runtime == 'true'
       && needs['Windows-Runtime-D3D11'].result != 'failure'
@@ -166,6 +172,7 @@ jobs:
     needs: [changes, Windows-Runtime-D3D11]
     if: |
       !cancelled()
+      && (github.event_name == 'workflow_dispatch' && inputs.windows)
       && (github.event.pull_request.draft != true || contains(github.event.pull_request.labels.*.name, 'ci-run-on-draft'))
       && needs.changes.outputs.runtime == 'true'
       && needs['Windows-Runtime-D3D11'].result != 'failure'
@@ -179,6 +186,7 @@ jobs:
     needs: [changes, Windows-Runtime-D3D12]
     if: |
       !cancelled()
+      && (github.event_name == 'workflow_dispatch' && inputs.windows)
       && (github.event.pull_request.draft != true || contains(github.event.pull_request.labels.*.name, 'ci-run-on-draft'))
       && needs.changes.outputs.runtime == 'true'
       && needs['Windows-Runtime-D3D12'].result != 'failure'
@@ -192,6 +200,7 @@ jobs:
     needs: [changes, Windows-Runtime-Vulkan]
     if: |
       !cancelled()
+      && (github.event_name == 'workflow_dispatch' && inputs.windows)
       && (github.event.pull_request.draft != true || contains(github.event.pull_request.labels.*.name, 'ci-run-on-draft'))
       && needs.changes.outputs.runtime == 'true'
       && needs['Windows-Runtime-Vulkan'].result != 'failure'
@@ -298,7 +307,7 @@ jobs:
       - iOS-Tests-Game
       - Android-Tests-Game
     if: always()
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Fail if any needed job failed or was cancelled
         env:

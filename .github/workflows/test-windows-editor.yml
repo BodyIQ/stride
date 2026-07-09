@@ -41,7 +41,7 @@ jobs:
       github.event_name != 'schedule'
       || vars.STRIDE_ENABLE_SCHEDULED_CI == 'true'
     name: Windows (Editor, ${{ inputs.build-type || 'Debug' }})
-    runs-on: windows-2025-vs2026
+    runs-on: blacksmith-4vcpu-windows-2025
     env:
       DOTNET_DbgEnableMiniDump: "1"
       DOTNET_DbgMiniDumpType: "1"
