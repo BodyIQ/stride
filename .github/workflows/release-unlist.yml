@@ -15,7 +15,7 @@ on:
 jobs:
   Validate:
     name: Validate
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Check release permissions
         env:
@@ -34,7 +34,7 @@ jobs:
   Unlist:
     name: Unlist ${{ inputs.version }}
     needs: Validate
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     environment: production
     steps:
       - name: Find and unlist Stride packages

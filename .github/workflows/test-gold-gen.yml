@@ -102,7 +102,7 @@ jobs:
   # automatically (per update-gold), plus the local promote/review command either way.
   info:
     if: ${{ inputs.windows || inputs.linux || inputs.macos || inputs.android || inputs.ios }}
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Show gold landing info
         run: |
@@ -206,7 +206,7 @@ jobs:
   gather:
     needs: [windows, linux, macos, android, ios]
     if: ${{ always() && (inputs.windows || inputs.linux || inputs.macos || inputs.android || inputs.ios) }}
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Download generated images
         uses: actions/download-artifact@v4
@@ -240,7 +240,7 @@ jobs:
   promote:
     needs: [gather]
     if: ${{ always() && inputs.update-gold != 'none' && needs.gather.result == 'success' }}
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     permissions:
       contents: write
       pull-requests: write

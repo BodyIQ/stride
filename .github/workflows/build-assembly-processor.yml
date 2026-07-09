@@ -26,7 +26,7 @@ jobs:
   #
   Assembly-Processor:
     name: Assembly Processor (${{ github.event.inputs.build-type || inputs.build-type || 'Debug' }})
-    runs-on: windows-2025-vs2026
+    runs-on: blacksmith-4vcpu-windows-2025
     steps:
       # Bootstrap .github so the local composite action below is resolvable pre-checkout.
       - uses: actions/checkout@v4

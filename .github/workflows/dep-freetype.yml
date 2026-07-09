@@ -11,7 +11,7 @@ on:
 jobs:
   build-windows:
     name: Build FreeType (Windows)
-    runs-on: windows-2025-vs2026
+    runs-on: blacksmith-4vcpu-windows-2025
     strategy:
       matrix:
         include:
@@ -58,7 +58,7 @@ jobs:
 
   build-linux:
     name: Build FreeType (Linux x64)
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Checkout FreeType
         uses: actions/checkout@v4
@@ -94,7 +94,7 @@ jobs:
 
   build-macos:
     name: Build FreeType (macOS)
-    runs-on: macos-15
+    runs-on: blacksmith-6vcpu-macos-15
     strategy:
       matrix:
         include:
@@ -137,7 +137,7 @@ jobs:
 
   build-android:
     name: Build FreeType (Android)
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     strategy:
       matrix:
         include:
@@ -185,7 +185,7 @@ jobs:
 
   build-ios:
     name: Build FreeType (${{ matrix.rid }})
-    runs-on: macos-15
+    runs-on: blacksmith-6vcpu-macos-15
     strategy:
       fail-fast: false
       matrix:
@@ -232,7 +232,7 @@ jobs:
   collect:
     name: Collect all platforms
     needs: [build-windows, build-linux, build-macos, build-android, build-ios]
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Checkout FreeType (for version info)
         uses: actions/checkout@v4

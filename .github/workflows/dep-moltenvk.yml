@@ -27,7 +27,7 @@ on:
 jobs:
   vendor:
     name: Build & repackage MoltenVK
-    runs-on: macos-15
+    runs-on: blacksmith-6vcpu-macos-15
     steps:
       - name: Build MoltenVK from source
         run: |

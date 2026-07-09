@@ -28,7 +28,7 @@ concurrency:
 
 jobs:
   Validate:
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Check deploy requires signing
         if: ${{ inputs.deploy && !inputs.sign }}
@@ -52,7 +52,7 @@ jobs:
   Package:
     name: Package
     needs: Validate
-    runs-on: windows-2025-vs2026
+    runs-on: blacksmith-4vcpu-windows-2025
     environment: production  # signing secrets live here
     outputs:
       version: ${{ steps.version.outputs.version }}
@@ -121,7 +121,7 @@ jobs:
     name: Packaged CLI ${{ needs.Package.outputs.version }}
     needs: Package
     if: ${{ always() && needs.Package.result == 'success' }}
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - run: echo "::notice title=Packaged CLI::${{ needs.Package.outputs.version }}"
 
@@ -129,7 +129,7 @@ jobs:
     name: Deploy ${{ needs.Package.outputs.version }}
     if: ${{ inputs.deploy && inputs.sign }}
     needs: Package
-    runs-on: ubuntu-latest  # NuGet push doesn't need Windows
+    runs-on: blacksmith-4vcpu-ubuntu-2404  # NuGet push doesn't need Windows
     environment: production  # requires manual approval in GitHub settings
     permissions:
       contents: write

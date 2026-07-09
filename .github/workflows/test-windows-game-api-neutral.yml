@@ -44,7 +44,7 @@ concurrency:
 jobs:
   Game-ApiNeutral:
     name: Windows (ApiNeutral, ${{ github.event.inputs.build-type || inputs.build-type || 'Debug' }})
-    runs-on: windows-2025-vs2026
+    runs-on: blacksmith-4vcpu-windows-2025
     timeout-minutes: 20
     env:
       STRIDE_GRAPHICS_SOFTWARE_RENDERING: "1"

@@ -27,7 +27,7 @@ permissions:
 
 jobs:
   detect:
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     outputs:
       runtime: ${{ steps.comments.outputs.comment_only == 'true' && 'false' || steps.filter.outputs.runtime || 'true' }}
       ios: ${{ steps.comments.outputs.comment_only == 'true' && 'false' || steps.filter.outputs.ios || 'true' }}

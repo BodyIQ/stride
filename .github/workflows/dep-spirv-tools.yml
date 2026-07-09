@@ -39,7 +39,7 @@ jobs:
   # ---------------------------------------------------------------------------
   build-windows-x64:
     name: Build SPIRV-Tools (Windows x64)
-    runs-on: windows-2025-vs2026
+    runs-on: blacksmith-4vcpu-windows-2025
     steps:
       - uses: actions/checkout@v4
         with: { path: stride-src, sparse-checkout: build/deps/spirv-tools }
@@ -80,7 +80,7 @@ jobs:
   # ---------------------------------------------------------------------------
   build-windows-arm64:
     name: Build SPIRV-Tools (Windows ARM64)
-    runs-on: windows-2025-vs2026
+    runs-on: blacksmith-4vcpu-windows-2025
     steps:
       - uses: actions/checkout@v4
         with: { path: stride-src, sparse-checkout: build/deps/spirv-tools }
@@ -119,7 +119,7 @@ jobs:
   # ---------------------------------------------------------------------------
   build-linux-x64:
     name: Build SPIRV-Tools (Linux x64)
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@v4
         with: { path: stride-src, sparse-checkout: build/deps/spirv-tools }
@@ -155,7 +155,7 @@ jobs:
   # ---------------------------------------------------------------------------
   build-macos-arm64:
     name: Build SPIRV-Tools (macOS ARM64)
-    runs-on: macos-15
+    runs-on: blacksmith-6vcpu-macos-15
     steps:
       - uses: actions/checkout@v4
         with: { path: stride-src, sparse-checkout: build/deps/spirv-tools }
@@ -191,7 +191,7 @@ jobs:
   # ---------------------------------------------------------------------------
   build-ios-arm64:
     name: Build SPIRV-Tools (iOS ARM64)
-    runs-on: macos-15
+    runs-on: blacksmith-6vcpu-macos-15
     steps:
       - uses: actions/checkout@v4
         with: { path: stride-src, sparse-checkout: build/deps/spirv-tools }
@@ -237,7 +237,7 @@ jobs:
   # ---------------------------------------------------------------------------
   build-iossimulator-arm64:
     name: Build SPIRV-Tools (iOS Simulator ARM64)
-    runs-on: macos-15
+    runs-on: blacksmith-6vcpu-macos-15
     steps:
       - uses: actions/checkout@v4
         with: { path: stride-src, sparse-checkout: build/deps/spirv-tools }
@@ -274,7 +274,7 @@ jobs:
   # ---------------------------------------------------------------------------
   build-android:
     name: Build SPIRV-Tools (Android ${{ matrix.abi }})
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     strategy:
       fail-fast: false
       matrix:
@@ -329,7 +329,7 @@ jobs:
       - build-ios-arm64
       - build-iossimulator-arm64
       - build-android
-    runs-on: windows-2025-vs2026
+    runs-on: blacksmith-4vcpu-windows-2025
     steps:
       - uses: actions/checkout@v4
 
@@ -374,7 +374,7 @@ jobs:
   publish:
     name: Sign & Publish to NuGet.org
     needs: pack
-    runs-on: windows-2025-vs2026
+    runs-on: blacksmith-4vcpu-windows-2025
     environment: production
     steps:
       - name: Install signing tool

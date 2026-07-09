@@ -43,7 +43,7 @@ jobs:
   # ====================================================================
   linux-x64:
     name: Build FFmpeg (Linux x64)
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Install build deps
         run: |
@@ -144,7 +144,7 @@ jobs:
   # ====================================================================
   osx-arm64:
     name: Build FFmpeg (macOS arm64)
-    runs-on: macos-15
+    runs-on: blacksmith-6vcpu-macos-15
     steps:
       - name: Install build deps
         run: brew install nasm pkg-config
@@ -244,7 +244,7 @@ jobs:
   # ====================================================================
   win-x64:
     name: Build FFmpeg (Windows x64)
-    runs-on: windows-2025-vs2026
+    runs-on: blacksmith-4vcpu-windows-2025
     defaults:
       run:
         shell: msys2 {0}
@@ -375,7 +375,7 @@ jobs:
   # ====================================================================
   win-arm64:
     name: Build FFmpeg (Windows arm64)
-    runs-on: windows-11-arm
+    runs-on: blacksmith-4vcpu-windows-2025
     defaults:
       run:
         shell: msys2 {0}

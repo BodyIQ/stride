@@ -18,7 +18,7 @@ on:
 jobs:
   build:
     name: Build Celt (osx-arm64 + iOS device + simulator)
-    runs-on: macos-15
+    runs-on: blacksmith-6vcpu-macos-15
     steps:
       - uses: actions/checkout@v4
 

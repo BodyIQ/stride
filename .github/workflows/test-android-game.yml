@@ -79,7 +79,7 @@ jobs:
     # Linux host: KVM-accelerated x86_64 Android emulator is the only path that runs in a
     # reasonable amount of time on a hosted runner. macOS-14+ Apple Silicon runners don't
     # support nested virt for AOSP emulator; older macOS-13 Intel HAXM is being retired.
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 45
     env:
       STRIDE_GRAPHICS_SOFTWARE_RENDERING: "1"
