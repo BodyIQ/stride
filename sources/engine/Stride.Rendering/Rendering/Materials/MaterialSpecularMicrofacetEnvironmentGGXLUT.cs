@@ -5,6 +5,7 @@ using Stride.Core;
 using Stride.Core.Annotations;
 using Stride.Core.Assets;
 using Stride.Core.Serialization;
+using Stride.Core.Serialization.Contents;
 using Stride.Graphics;
 using Stride.Shaders;
 
@@ -23,9 +24,13 @@ namespace Stride.Rendering.Materials
     {
         public ShaderSource Generate(MaterialGeneratorContext context)
         {
-            var texture = context.GraphicsProfile >= GraphicsProfile.Level_10_0
-                ? AttachedReferenceManager.CreateProxyObject<Texture>(new AssetId("a49995f8-2380-4baa-a03e-f8d1da35b79a"), "StrideEnvironmentLightingDFGLUT16")
-                : AttachedReferenceManager.CreateProxyObject<Texture>(new AssetId("87540190-ab97-4b4e-b3c2-d57d2fbb1ff3"), "StrideEnvironmentLightingDFGLUT8");
+            var useLevel10 = context.GraphicsProfile >= GraphicsProfile.Level_10_0;
+            var url = useLevel10 ? "StrideEnvironmentLightingDFGLUT16" : "StrideEnvironmentLightingDFGLUT8";
+            var texture = context.Content != null
+                ? context.Content.Load<Texture>(url, ContentManagerLoaderSettings.StreamingDisabled)
+                : useLevel10
+                    ? AttachedReferenceManager.CreateProxyObject<Texture>(new AssetId("a49995f8-2380-4baa-a03e-f8d1da35b79a"), url)
+                    : AttachedReferenceManager.CreateProxyObject<Texture>(new AssetId("87540190-ab97-4b4e-b3c2-d57d2fbb1ff3"), url);
             context.Parameters.Set(MaterialSpecularMicrofacetEnvironmentGGXLUTKeys.EnvironmentLightingDFG_LUT, texture);
 
             return new ShaderClassSource("MaterialSpecularMicrofacetEnvironmentGGXLUT");

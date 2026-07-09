@@ -48,6 +48,20 @@ namespace Stride.Rendering
         /// <exception cref="System.InvalidOperationException">If an error occurs with the material description</exception>
         public static Material New(GraphicsDevice device, MaterialDescriptor descriptor)
         {
+            return New(device, null, descriptor);
+        }
+
+        /// <summary>
+        /// Creates a new material from the specified descriptor and content manager.
+        /// </summary>
+        /// <param name="device"></param>
+        /// <param name="content">The content manager used to resolve built-in material resources.</param>
+        /// <param name="descriptor">The material descriptor.</param>
+        /// <returns>An instance of a <see cref="Material"/>.</returns>
+        /// <exception cref="System.ArgumentNullException">descriptor</exception>
+        /// <exception cref="System.InvalidOperationException">If an error occurs with the material description</exception>
+        public static Material New(GraphicsDevice device, ContentManager content, MaterialDescriptor descriptor)
+        {
             if (descriptor == null) throw new ArgumentNullException("descriptor");
 
             // The descriptor is not assigned to the material because
@@ -55,6 +69,7 @@ namespace Stride.Rendering
             // 2) we don't wanna hold on to memory we actually don't need
             var context = new MaterialGeneratorContext(new Material(), device)
             {
+                Content = content,
                 GraphicsProfile = device.Features.RequestedProfile,
             };
             var result = MaterialGenerator.Generate(descriptor, context, string.Format("{0}:RuntimeMaterial", descriptor.MaterialId));

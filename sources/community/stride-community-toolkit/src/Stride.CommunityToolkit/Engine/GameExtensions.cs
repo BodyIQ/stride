@@ -463,7 +463,7 @@ public static class GameExtensions
             }
         };
 
-        return Material.New(game.GraphicsDevice, materialDescription);
+        return Material.New(game.GraphicsDevice, game.Content, materialDescription);
     }
 
     /// <summary>
@@ -488,7 +488,7 @@ public static class GameExtensions
             }
         };
 
-        return Material.New(game.GraphicsDevice, materialDescription);
+        return Material.New(game.GraphicsDevice, game.Content, materialDescription);
     }
 
     /// <summary>
