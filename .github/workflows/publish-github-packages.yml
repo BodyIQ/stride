@@ -105,6 +105,52 @@ jobs:
           $packages | ForEach-Object { echo $_.Name >> $env:GITHUB_STEP_SUMMARY }
           echo '```' >> $env:GITHUB_STEP_SUMMARY
 
+      - name: Validate code-only template package
+        shell: pwsh
+        run: |
+          $template = Get-ChildItem -Path bin/packages -Filter "Stride.Templates.CodeOnly.*.nupkg" | Sort-Object Name | Select-Object -Last 1
+          if (-not $template) {
+            echo "::error::Stride.Templates.CodeOnly package was not produced."
+            exit 1
+          }
+
+          $work = Join-Path $env:RUNNER_TEMP "stride-codeonly-template-smoke"
+          Remove-Item -Recurse -Force $work -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $work | Out-Null
+
+          dotnet new uninstall Stride.Templates.CodeOnly 2>$null
+          dotnet new install --force $template.FullName
+          if ($LASTEXITCODE -ne 0) {
+            echo "::error::Failed to install $($template.Name)."
+            exit 1
+          }
+
+          $project = Join-Path $work "SmokeGame"
+          dotnet new stride-macos-fsharp -n SmokeGame -o $project
+          if ($LASTEXITCODE -ne 0) {
+            echo "::error::Failed to instantiate stride-macos-fsharp."
+            exit 1
+          }
+          if (-not (Test-Path (Join-Path $project "NuGet.config"))) {
+            echo "::error::Generated stride-macos-fsharp project did not include NuGet.config."
+            exit 1
+          }
+
+          dotnet restore (Join-Path $project "SmokeGame.fsproj") `
+            --source (Resolve-Path bin/packages).Path `
+            --source "https://api.nuget.org/v3/index.json" `
+            --no-cache
+          if ($LASTEXITCODE -ne 0) {
+            echo "::error::Generated stride-macos-fsharp project did not restore against the produced packages."
+            exit 1
+          }
+
+          dotnet build (Join-Path $project "SmokeGame.fsproj") --no-restore
+          if ($LASTEXITCODE -ne 0) {
+            echo "::error::Generated stride-macos-fsharp project did not build."
+            exit 1
+          }
+
       - name: Publish to GitHub Packages
         shell: pwsh
         run: |

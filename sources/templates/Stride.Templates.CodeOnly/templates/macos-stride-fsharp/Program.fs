@@ -1,5 +1,5 @@
-open Stride.CommunityToolkit.Bepu
 open Stride.CommunityToolkit.Engine
+open Stride.CommunityToolkit.Games
 open Stride.CommunityToolkit.Rendering.ProceduralModels
 open Stride.CommunityToolkit.Skyboxes
 open Stride.Core.Mathematics
@@ -8,7 +8,7 @@ open Stride.Engine
 let game = new Game()
 
 let start (rootScene: Scene) =
-    game.SetupBase3DScene()
+    game.SetupBase3D()
     game.AddSkybox() |> ignore
 
     let capsule = game.Create3DPrimitive(PrimitiveModelType.Capsule)

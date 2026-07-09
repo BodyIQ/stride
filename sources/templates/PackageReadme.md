@@ -25,10 +25,15 @@ For local fork builds, install same-version template packages with `--force`:
 dotnet new install --force /path/to/Stride.Templates.CodeOnly.4.4.0-dev.nupkg
 ```
 
-Generated code-only projects also need a NuGet source for the matching forked Stride packages until they are published:
+Generated code-only projects include a `NuGet.config` that points at nuget.org and this fork's GitHub Packages feed. GitHub Packages still requires a one-time authenticated source entry before restore:
 
 ```bash
-dotnet nuget add source /path/to/stride/bin/packages --name stride-local
+dotnet nuget add source \
+  --username GITHUB_USERNAME \
+  --password GITHUB_PAT_WITH_READ_PACKAGES \
+  --store-password-in-clear-text \
+  --name gurdasnijor-stride \
+  "https://nuget.pkg.github.com/gurdasnijor/index.json"
 ```
 
 ## Common parameters
