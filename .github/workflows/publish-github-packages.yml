@@ -7,6 +7,10 @@ on:
         description: Prerelease suffix, no leading dash. Empty uses github-<run>.<attempt>.
         default: ''
         type: string
+      platform-windows:
+        description: Include Windows packages
+        default: false
+        type: boolean
       platform-linux:
         description: Include Linux packages
         default: true
@@ -73,11 +77,17 @@ jobs:
       - name: Build packages
         shell: pwsh
         run: |
-          $platforms = "Windows"
-          if ("${{ inputs.platform-linux }}" -eq "true") { $platforms += ";Linux" }
-          if ("${{ inputs.platform-android }}" -eq "true") { $platforms += ";Android" }
-          if ("${{ inputs.platform-ios }}" -eq "true") { $platforms += ";iOS" }
-          if ("${{ inputs.platform-macos }}" -eq "true") { $platforms += ";macOS" }
+          $platforms = @()
+          if ("${{ inputs.platform-windows }}" -eq "true") { $platforms += "Windows" }
+          if ("${{ inputs.platform-linux }}" -eq "true") { $platforms += "Linux" }
+          if ("${{ inputs.platform-android }}" -eq "true") { $platforms += "Android" }
+          if ("${{ inputs.platform-ios }}" -eq "true") { $platforms += "iOS" }
+          if ("${{ inputs.platform-macos }}" -eq "true") { $platforms += "macOS" }
+          $platforms = $platforms -join ";"
+          if ([string]::IsNullOrWhiteSpace($platforms)) {
+            echo "::error::At least one platform must be selected."
+            exit 1
+          }
           echo "Building for platforms: $platforms"
           dotnet build build\Stride.build `
             -t:Package `
@@ -185,11 +195,13 @@ jobs:
 
       - name: Publish to GitHub Packages
         shell: pwsh
+        env:
+          GITHUB_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN || github.token }}
         run: |
           $source = "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
           dotnet nuget add source $source `
             --username "${{ github.actor }}" `
-            --password "${{ secrets.GITHUB_TOKEN }}" `
+            --password "$env:GITHUB_PACKAGES_TOKEN" `
             --store-password-in-clear-text `
             --name github
 
@@ -198,7 +210,7 @@ jobs:
             echo "Pushing $($_.Name)..."
             dotnet nuget push $_.FullName `
               --source github `
-              --api-key "${{ secrets.GITHUB_TOKEN }}" `
+              --api-key "$env:GITHUB_PACKAGES_TOKEN" `
               --timeout 1800 `
               --skip-duplicate
             if ($LASTEXITCODE -ne 0) {
