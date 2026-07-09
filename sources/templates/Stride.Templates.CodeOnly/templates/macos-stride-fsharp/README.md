@@ -8,7 +8,7 @@ and pinned Stride engine packages from GitHub Packages. The generated
 one-time authenticated source entry on each machine:
 
 ```bash
-dotnet nuget add source --username GITHUB_USERNAME --password GITHUB_PAT_WITH_READ_PACKAGES --store-password-in-clear-text --name gurdasnijor-stride "https://nuget.pkg.github.com/gurdasnijor/index.json"
+dotnet nuget add source --username GITHUB_USERNAME --password GITHUB_PAT_WITH_READ_PACKAGES --store-password-in-clear-text --name bodyiq-stride "https://nuget.pkg.github.com/BodyIQ/index.json"
 ```
 
 ```bash

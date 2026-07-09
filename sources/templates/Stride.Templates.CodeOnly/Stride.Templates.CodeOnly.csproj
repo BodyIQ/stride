@@ -18,7 +18,7 @@
     <PackageProjectUrl>https://stride3d.net</PackageProjectUrl>
     <PackageIcon>nuget-icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <RepositoryUrl>https://github.com/gurdasnijor/stride</RepositoryUrl>
+    <RepositoryUrl>https://github.com/BodyIQ/stride</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageVersion Condition="'$(PackageVersion)' == ''">$(StrideNuGetVersion)</PackageVersion>
     <IncludeBuildOutput>false</IncludeBuildOutput>

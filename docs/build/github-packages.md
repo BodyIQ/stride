@@ -13,8 +13,8 @@ dotnet nuget add source \
   --username GITHUB_USERNAME \
   --password GITHUB_PAT_WITH_READ_PACKAGES \
   --store-password-in-clear-text \
-  --name gurdasnijor-stride \
-  "https://nuget.pkg.github.com/gurdasnijor/index.json"
+  --name bodyiq-stride \
+  "https://nuget.pkg.github.com/BodyIQ/index.json"
 ```
 
 Create a new F# macOS Stride game:
@@ -67,8 +67,8 @@ dotnet nuget add source \
   --username GITHUB_USERNAME \
   --password GITHUB_PAT \
   --store-password-in-clear-text \
-  --name gurdasnijor-stride \
-  "https://nuget.pkg.github.com/gurdasnijor/index.json"
+  --name bodyiq-stride \
+  "https://nuget.pkg.github.com/BodyIQ/index.json"
 ```
 
 Generated projects use a simple two-source `NuGet.config`: nuget.org for upstream dependencies such as `Stride.CommunityToolkit`, and this fork's GitHub Packages feed for the pinned `Stride.*` engine package versions:
@@ -78,7 +78,7 @@ Generated projects use a simple two-source `NuGet.config`: nuget.org for upstrea
 <configuration>
   <packageSources>
     <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
-    <add key="gurdasnijor-stride" value="https://nuget.pkg.github.com/gurdasnijor/index.json" />
+    <add key="bodyiq-stride" value="https://nuget.pkg.github.com/BodyIQ/index.json" />
   </packageSources>
 </configuration>
 ```
@@ -103,7 +103,7 @@ dotnet new stride-macos-fsharp -n MyFSharpGame
 
 The generated project will already reference the upstream toolkit packages and pin the Stride engine packages to that template's engine version.
 
-The generated project also includes a `NuGet.config` with nuget.org and this fork's GitHub Packages feed. It does not include credentials; authenticate the `gurdasnijor-stride` source once per consuming machine.
+The generated project also includes a `NuGet.config` with nuget.org and this fork's GitHub Packages feed. It does not include credentials; authenticate the `bodyiq-stride` source once per consuming machine.
 
 To verify the packaged native runtime after creating a project:
 

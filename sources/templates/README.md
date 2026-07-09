@@ -89,8 +89,8 @@ dotnet nuget add source \
   --username GITHUB_USERNAME \
   --password GITHUB_PAT_WITH_READ_PACKAGES \
   --store-password-in-clear-text \
-  --name gurdasnijor-stride \
-  "https://nuget.pkg.github.com/gurdasnijor/index.json"
+  --name bodyiq-stride \
+  "https://nuget.pkg.github.com/BodyIQ/index.json"
 ```
 
 For persistent opt-in across builds, drop a `Directory.Build.user.props` in your checkout root (gitignored) with:
