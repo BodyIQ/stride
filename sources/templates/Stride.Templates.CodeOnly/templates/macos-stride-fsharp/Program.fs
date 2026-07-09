@@ -9,6 +9,7 @@ let game = new Game()
 
 let start (rootScene: Scene) =
     game.SetupBase3D()
+    game.Add3DCameraController() |> ignore
     game.AddSkybox() |> ignore
 
     let capsule = game.Create3DPrimitive(PrimitiveModelType.Capsule)

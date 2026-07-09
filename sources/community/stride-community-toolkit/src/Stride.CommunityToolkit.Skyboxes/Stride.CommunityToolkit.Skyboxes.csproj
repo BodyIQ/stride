@@ -12,15 +12,17 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Remove="Resources\skybox_texture_hdr.dds" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Content Include="Resources\skybox_texture_hdr.dds">
+        <Content Include="Resources/skybox_texture_hdr.dds"
+                 Pack="true"
+                 PackagePath="contentFiles/any/$(TargetFramework)/Resources/skybox_texture_hdr.dds;content/Resources/skybox_texture_hdr.dds">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
             <PackageCopyToOutput>true</PackageCopyToOutput>
+            <Visible>false</Visible>
         </Content>
-        <None Include="buildTransitive\Stride.CommunityToolkit.Skyboxes.props" Pack="true" PackagePath="buildTransitive\" />
+        <None Include="buildTransitive/Stride.CommunityToolkit.Skyboxes.props"
+              Pack="true"
+              PackagePath="buildTransitive/Stride.CommunityToolkit.Skyboxes.props" />
     </ItemGroup>
 
 </Project>

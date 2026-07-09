@@ -50,6 +50,12 @@ namespace Stride.Rendering.Materials
         /// </value>
         public ContentManager Content { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether generated material parameters should keep existing
+        /// content references instead of eagerly loading referenced runtime content.
+        /// </summary>
+        public bool PreserveContentReferences { get; set; }
+
         public ShaderGeneratorContext(GraphicsDevice graphicsDevice = null)
         {
             this.graphicsDevice = graphicsDevice;

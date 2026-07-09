@@ -26,7 +26,7 @@ namespace Stride.Rendering.Materials
         {
             var useLevel10 = context.GraphicsProfile >= GraphicsProfile.Level_10_0;
             var url = useLevel10 ? "StrideEnvironmentLightingDFGLUT16" : "StrideEnvironmentLightingDFGLUT8";
-            var texture = context.Content != null
+            var texture = context.Content != null && !context.PreserveContentReferences
                 ? context.Content.Load<Texture>(url, ContentManagerLoaderSettings.StreamingDisabled)
                 : useLevel10
                     ? AttachedReferenceManager.CreateProxyObject<Texture>(new AssetId("a49995f8-2380-4baa-a03e-f8d1da35b79a"), url)

@@ -150,6 +150,24 @@ jobs:
             echo "::error::Generated stride-macos-fsharp project did not build."
             exit 1
           }
+          $debugSkybox = Get-ChildItem -Path (Join-Path $project "bin/Debug/net10.0") -Recurse -Filter "skybox_texture_hdr.dds" -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $debugSkybox) {
+            echo "::error::Generated stride-macos-fsharp build output is missing Resources/skybox_texture_hdr.dds."
+            exit 1
+          }
+
+          dotnet publish (Join-Path $project "SmokeGame.fsproj") -c Release --no-restore
+          if ($LASTEXITCODE -ne 0) {
+            echo "::error::Generated stride-macos-fsharp project did not publish."
+            exit 1
+          }
+          $publishSkybox = Get-ChildItem -Path (Join-Path $project "bin/Release/net10.0") -Recurse -Filter "skybox_texture_hdr.dds" -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -like "*publish*" } |
+            Select-Object -First 1
+          if (-not $publishSkybox) {
+            echo "::error::Generated stride-macos-fsharp publish output is missing Resources/skybox_texture_hdr.dds."
+            exit 1
+          }
 
       - name: Publish to GitHub Packages
         shell: pwsh

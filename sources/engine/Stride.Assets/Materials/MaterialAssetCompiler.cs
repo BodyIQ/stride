@@ -116,6 +116,7 @@ namespace Stride.Assets.Materials
                 {
                     GraphicsProfile = graphicsProfile,
                     Content = assetManager,
+                    PreserveContentReferences = true,
                     ColorSpace = colorSpace
                 };
                 materialContext.AddLoadingFromSession(AssetFinder);
