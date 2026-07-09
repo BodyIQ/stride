@@ -33,17 +33,20 @@ public class StrideGameTemplateSmokeTests
             $"Expected bin/packages/ to exist at {enginePackagesDir}. Build the engine first " +
             "(any normal test run does this transitively).");
 
-        // Covers all three preprocessor variants:
+        // Covers the main template package shapes:
         //   - blank game (Stride.Templates.Games → stride-game): NewGame body, no sample-derived steps
         //   - starter (Stride.Templates.Games.Starters → stride-fps): full preprocessor incl. dep
         //     collapse / asset prune / source-name rename
         //   - sample (Stride.Templates.Samples → stride-csharp-beginner): same preprocessor flow as
         //     starters but smaller asset set
+        //   - code-only F# starter (Stride.Templates.CodeOnly → stride-macos-fsharp): plain dotnet
+        //     template content with direct package pins
         var packagesToPack = new[]
         {
             ("Stride.Templates.Games",          "stride-game",            "SmokeBlankGame"),
             ("Stride.Templates.Games.Starters", "stride-fps",             "SmokeFps"),
             ("Stride.Templates.Samples",        "stride-csharp-beginner", "SmokeTutorial"),
+            ("Stride.Templates.CodeOnly",       "stride-macos-fsharp",    "SmokeFSharp"),
         };
         var nupkgs = new List<string>();
         foreach (var (packageId, _, _) in packagesToPack)
@@ -123,10 +126,13 @@ public class StrideGameTemplateSmokeTests
         var instantiated = Path.Combine(workspace, projectName);
         Assert.True(Directory.Exists(instantiated), $"Instantiated project dir missing at {instantiated}");
 
-        // Two layouts in the wild: stride-game uses the post-restructure flat layout
-        // (<Name>/<Name>.csproj — no .Game suffix); sample-derived templates (starters, samples)
-        // keep the older nested layout (<Name>.Game/<Name>.Game.csproj). Try the flat one first.
+        // Three layouts in the wild: stride-game uses the post-restructure flat nested layout
+        // (<Name>/<Name>.csproj — no .Game suffix); code-only templates use a flat executable
+        // project (<Name>.fsproj); sample-derived templates (starters, samples) keep the older
+        // nested layout (<Name>.Game/<Name>.Game.csproj). Try the flat/nested one first.
         var libraryCsproj = Path.Combine(instantiated, projectName, $"{projectName}.csproj");
+        if (!File.Exists(libraryCsproj))
+            libraryCsproj = Path.Combine(instantiated, $"{projectName}.fsproj");
         if (!File.Exists(libraryCsproj))
             libraryCsproj = Path.Combine(instantiated, $"{projectName}.Game", $"{projectName}.Game.csproj");
         Assert.True(File.Exists(libraryCsproj), $"Expected library csproj at <{instantiated}>/{{{projectName},{projectName}.Game}}/...");

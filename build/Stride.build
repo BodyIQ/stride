@@ -171,8 +171,9 @@ Example: dotnet build build/Stride.build -t:Package
        callers run the two phases separately. -->
   <Target Name="Package" DependsOnTargets="BuildPackages;SignPackage"/>
 
-  <!-- Package subset for code-only consumers. Builds the asset compiler, community toolkit code-only
-       package, template package, and their project-reference closure without building editor/GameStudio. -->
+  <!-- Package subset for code-only consumers. Builds the engine packages needed by the code-only
+       starter plus the template package, without building editor/GameStudio. The generated starter
+       consumes upstream Stride.CommunityToolkit packages from nuget.org directly. -->
   <Target Name="BuildCodeOnlyPackages" DependsOnTargets="PreparePackageBuild;$(_StridePackageTargetPrerequisitesInstaller)">
     <MSBuild Targets="Restore"
              Projects="$(MSBuildThisFileFullPath)"

@@ -162,48 +162,6 @@
       <Build Solution="Rider|*" Project="false" />
     </Project>
   </Folder>
-  <Folder Name="/21-CommunityToolkit/">
-    <Project Path="../sources/community/stride-community-toolkit/src/Stride.CommunityToolkit/Stride.CommunityToolkit.csproj">
-      <BuildType Solution="Rider|*" Project="Debug" />
-      <Build Solution="Rider|*" Project="false" />
-    </Project>
-    <Project Path="../sources/community/stride-community-toolkit/src/Stride.CommunityToolkit.Bepu/Stride.CommunityToolkit.Bepu.csproj">
-      <BuildType Solution="Rider|*" Project="Debug" />
-      <Build Solution="Rider|*" Project="false" />
-    </Project>
-    <Project Path="../sources/community/stride-community-toolkit/src/Stride.CommunityToolkit.Bullet/Stride.CommunityToolkit.Bullet.csproj">
-      <BuildType Solution="Rider|*" Project="Debug" />
-      <Build Solution="Rider|*" Project="false" />
-    </Project>
-    <Project Path="../sources/community/stride-community-toolkit/src/Stride.CommunityToolkit.CodeOnly/Stride.CommunityToolkit.CodeOnly.csproj">
-      <BuildType Solution="Rider|*" Project="Debug" />
-      <Build Solution="Rider|*" Project="false" />
-    </Project>
-    <Project Path="../sources/community/stride-community-toolkit/src/Stride.CommunityToolkit.DebugShapes/Stride.CommunityToolkit.DebugShapes.csproj">
-      <BuildType Solution="Rider|*" Project="Debug" />
-      <Build Solution="Rider|*" Project="false" />
-    </Project>
-    <Project Path="../sources/community/stride-community-toolkit/src/Stride.CommunityToolkit.ImGui/Stride.CommunityToolkit.ImGui.csproj">
-      <BuildType Solution="Rider|*" Project="Debug" />
-      <Build Solution="Rider|*" Project="false" />
-    </Project>
-    <Project Path="../sources/community/stride-community-toolkit/src/Stride.CommunityToolkit.ImGuiNet/Stride.CommunityToolkit.ImGuiNet.csproj">
-      <BuildType Solution="Rider|*" Project="Debug" />
-      <Build Solution="Rider|*" Project="false" />
-    </Project>
-    <Project Path="../sources/community/stride-community-toolkit/src/Stride.CommunityToolkit.Linux/Stride.CommunityToolkit.Linux.csproj">
-      <BuildType Solution="Rider|*" Project="Debug" />
-      <Build Solution="Rider|*" Project="false" />
-    </Project>
-    <Project Path="../sources/community/stride-community-toolkit/src/Stride.CommunityToolkit.Skyboxes/Stride.CommunityToolkit.Skyboxes.csproj">
-      <BuildType Solution="Rider|*" Project="Debug" />
-      <Build Solution="Rider|*" Project="false" />
-    </Project>
-    <Project Path="../sources/community/stride-community-toolkit/src/Stride.CommunityToolkit.Windows/Stride.CommunityToolkit.Windows.csproj">
-      <BuildType Solution="Rider|*" Project="Debug" />
-      <Build Solution="Rider|*" Project="false" />
-    </Project>
-  </Folder>
   <Folder Name="/20-StrideRuntime/Stride.Shared/">
     <Project Path="../sources/shared/Stride.Core.ShellHelper/Stride.Core.ShellHelper.shproj">
       <BuildType Solution="Rider|*" Project="Debug" />

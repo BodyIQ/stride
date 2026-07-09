@@ -1,10 +1,10 @@
 # GitHub Packages Feed
 
-This fork can publish the full compatible Stride package set to GitHub Packages from a manually dispatched workflow.
+This fork can publish the compatible Stride engine package set to GitHub Packages from a manually dispatched workflow.
 
 ## Quick workflow
 
-The fork package feed contains the macOS/F# code-only template and its matching engine/toolkit packages. Use one exact package version for the template and generated project packages when the packages come from the GitHub Actions publish workflow.
+The fork package feed contains the macOS/F# code-only template and its matching engine packages. Generated projects use upstream `Stride.CommunityToolkit` packages from nuget.org and pin `Stride.*` engine packages to the same fork version as the template.
 
 One-time setup on a consuming machine:
 
@@ -52,7 +52,7 @@ By default, the workflow publishes a unique prerelease version:
 
 You can also pass a custom prerelease suffix, without the leading dash. Do not reuse a suffix unless you intentionally want `--skip-duplicate` to keep the already-published package version.
 
-The workflow builds and publishes the template and the engine/toolkit packages with the same version. Avoid publishing a template-only package with a different version unless you also intentionally pin the generated project to an already-published engine/toolkit version.
+The workflow builds and publishes the template and the engine packages with the same version. Avoid publishing a template-only package with a different version unless you also intentionally pin the generated project to an already-published engine version.
 
 The workflow uses the repository `GITHUB_TOKEN` with `packages: write`; no personal access token is needed for publishing from Actions.
 
@@ -71,7 +71,7 @@ dotnet nuget add source \
   "https://nuget.pkg.github.com/gurdasnijor/index.json"
 ```
 
-For projects that use both nuget.org and this fork, package source mapping avoids accidental restores from the wrong feed:
+Generated projects use a simple two-source `NuGet.config`: nuget.org for upstream dependencies such as `Stride.CommunityToolkit`, and this fork's GitHub Packages feed for the pinned `Stride.*` engine package versions:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -80,28 +80,18 @@ For projects that use both nuget.org and this fork, package source mapping avoid
     <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
     <add key="gurdasnijor-stride" value="https://nuget.pkg.github.com/gurdasnijor/index.json" />
   </packageSources>
-  <packageSourceMapping>
-    <packageSource key="nuget.org">
-      <package pattern="*" />
-      <package pattern="Stride.Dependencies.*" />
-      <package pattern="Stride.GNU.*" />
-      <package pattern="Stride.Mono.*" />
-      <package pattern="Stride.GraphX.*" />
-      <package pattern="Stride.Metrics" />
-      <package pattern="Stride.QuickGraph" />
-    </packageSource>
-    <packageSource key="gurdasnijor-stride">
-      <package pattern="Stride" />
-      <package pattern="Stride.*" />
-    </packageSource>
-  </packageSourceMapping>
 </configuration>
 ```
 
-Then pin generated projects to the published version:
+If you are creating a project manually instead of using the template, reference upstream toolkit packages and pin the required engine packages to the fork version:
 
 ```xml
-<PackageReference Include="Stride.CommunityToolkit.CodeOnly" Version="4.4.0-github-123.1" />
+<PackageReference Include="Stride.CommunityToolkit" Version="1.0.0-preview.62" />
+<PackageReference Include="Stride.CommunityToolkit.Skyboxes" Version="1.0.0-preview.62" />
+<PackageReference Include="Stride.Engine" Version="4.4.0-github-123.1" />
+<PackageReference Include="Stride.Particles" Version="4.4.0-github-123.1" />
+<PackageReference Include="Stride.Physics" Version="4.4.0-github-123.1" />
+<PackageReference Include="Stride.UI" Version="4.4.0-github-123.1" />
 ```
 
 The code-only template package is published to the same feed. Install the exact version you want to test:
@@ -111,7 +101,7 @@ dotnet new install Stride.Templates.CodeOnly@4.4.0-github-123.1
 dotnet new stride-macos-fsharp -n MyFSharpGame
 ```
 
-The generated project will already reference `Stride.CommunityToolkit.CodeOnly` at that template's engine version.
+The generated project will already reference the upstream toolkit packages and pin the Stride engine packages to that template's engine version.
 
 The generated project also includes a `NuGet.config` with nuget.org and this fork's GitHub Packages feed. It does not include credentials; authenticate the `gurdasnijor-stride` source once per consuming machine.
 

@@ -25,7 +25,7 @@ For local fork builds, install same-version template packages with `--force`:
 dotnet new install --force /path/to/Stride.Templates.CodeOnly.4.4.0-dev.nupkg
 ```
 
-Generated code-only projects include a `NuGet.config` that points at nuget.org and this fork's GitHub Packages feed. GitHub Packages still requires a one-time authenticated source entry before restore:
+Generated code-only projects consume upstream `Stride.CommunityToolkit` packages from nuget.org and pinned `Stride.*` engine packages from this fork's GitHub Packages feed. GitHub Packages still requires a one-time authenticated source entry before restore:
 
 ```bash
 dotnet nuget add source \

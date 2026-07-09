@@ -1,7 +1,0 @@
-<Project>
-  <Target Name="StrideCommunityToolkitValidateCodeOnlyRuntimeIdentifier"
-          BeforeTargets="PrepareForBuild"
-          Condition="('$(StridePlatform)' == 'macOS' Or '$(StridePlatform)' == 'Linux') And '$(RuntimeIdentifier)' == '' And '$(RuntimeIdentifiers)' == ''">
-    <Error Text="Stride.CommunityToolkit.CodeOnly requires a RuntimeIdentifier on macOS/Linux so NuGet restores native runtime assets. Add &lt;RuntimeIdentifier&gt;$(NETCoreSdkRuntimeIdentifier)&lt;/RuntimeIdentifier&gt; to the executable project, or set RuntimeIdentifier on the command line." />
-  </Target>
-</Project>

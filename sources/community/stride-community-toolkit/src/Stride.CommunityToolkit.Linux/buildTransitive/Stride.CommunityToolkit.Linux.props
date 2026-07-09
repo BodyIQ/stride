@@ -1,8 +1,0 @@
-<Project>
-  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
-    <StridePlatform Condition="'$(StridePlatform)' == ''">Linux</StridePlatform>
-    <StrideGraphicsApi Condition="'$(StrideGraphicsApi)' == ''">Vulkan</StrideGraphicsApi>
-    <SelfContained Condition="'$(SelfContained)' == ''">false</SelfContained>
-    <AppendRuntimeIdentifierToOutputPath Condition="'$(AppendRuntimeIdentifierToOutputPath)' == ''">false</AppendRuntimeIdentifierToOutputPath>
-  </PropertyGroup>
-</Project>

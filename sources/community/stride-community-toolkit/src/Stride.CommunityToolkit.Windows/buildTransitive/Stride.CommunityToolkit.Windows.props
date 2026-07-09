@@ -1,6 +1,0 @@
-<Project>
-  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
-    <StridePlatform Condition="'$(StridePlatform)' == ''">Windows</StridePlatform>
-    <StrideGraphicsApi Condition="'$(StrideGraphicsApi)' == ''">Direct3D11</StrideGraphicsApi>
-  </PropertyGroup>
-</Project>

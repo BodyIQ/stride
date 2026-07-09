@@ -1,8 +1,0 @@
-<Project>
-  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('OSX'))">
-    <StridePlatform Condition="'$(StridePlatform)' == '' Or '$(StridePlatform)' == 'Windows'">macOS</StridePlatform>
-    <StrideGraphicsApi Condition="'$(StrideGraphicsApi)' == ''">Vulkan</StrideGraphicsApi>
-    <SelfContained Condition="'$(SelfContained)' == ''">false</SelfContained>
-    <AppendRuntimeIdentifierToOutputPath Condition="'$(AppendRuntimeIdentifierToOutputPath)' == ''">false</AppendRuntimeIdentifierToOutputPath>
-  </PropertyGroup>
-</Project>
