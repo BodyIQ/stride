@@ -1,5 +1,6 @@
 <Solution>
   <Configurations>
+    <BuildType Name="Release" />
     <BuildType Name="Rider" />
   </Configurations>
   <Folder Name="/00-Build/">
