@@ -375,7 +375,7 @@ namespace Stride.Graphics.SDL
             {
 #if STRIDE_GRAPHICS_API_VULKAN
                 int w, h;
-                SDL.GLGetDrawableSize(sdlHandle, &w, &h);
+                SDL.GetWindowSize(sdlHandle, &w, &h);
                 return new Size2(w, h);
 #else
                 var surface = SDL.GetWindowSurface(sdlHandle);
@@ -401,7 +401,7 @@ namespace Stride.Graphics.SDL
             {
 #if STRIDE_GRAPHICS_API_VULKAN
                 int w, h;
-                SDL.GLGetDrawableSize(sdlHandle, &w, &h);
+                SDL.GetWindowSize(sdlHandle, &w, &h);
                 return new Rectangle(0, 0, w, h);
 #else
                 var surface = SDL.GetWindowSurface(sdlHandle);

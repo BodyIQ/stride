@@ -1184,6 +1184,8 @@ namespace Stride.Games
                 }
 
                 var isBeginScreenDeviceChange = false;
+                var requestedWindowClientWidth = width;
+                var requestedWindowClientHeight = height;
                 try
                 {
                     // Notifies the game Window the new orientation
@@ -1193,8 +1195,12 @@ namespace Stride.Games
                     // Find the best device configuration based on the current settings
                     var graphicsDeviceInformation = FindBestDevice(forceCreate);
                     graphicsDeviceInformation.PresentationParameters.SkipBackBufferClampToWindow = SkipBackBufferClampToWindow;
+                    requestedWindowClientWidth = graphicsDeviceInformation.PresentationParameters.BackBufferWidth;
+                    requestedWindowClientHeight = graphicsDeviceInformation.PresentationParameters.BackBufferHeight;
                     // Give a chance to the game to modify the device settings before the device is created or reset
                     OnPreparingDeviceSettings(this, new PreparingDeviceSettingsEventArgs(graphicsDeviceInformation));
+                    requestedWindowClientWidth = graphicsDeviceInformation.PresentationParameters.BackBufferWidth;
+                    requestedWindowClientHeight = graphicsDeviceInformation.PresentationParameters.BackBufferHeight;
 
                     isFullScreen = graphicsDeviceInformation.PresentationParameters.IsFullScreen;
                     game.Window.BeginScreenDeviceChange(graphicsDeviceInformation.PresentationParameters.IsFullScreen);
@@ -1241,10 +1247,20 @@ namespace Stride.Games
                     var presentationParameters = GraphicsDevice.Presenter.Description;
                     isReallyFullScreen = presentationParameters.IsFullScreen;
 
-                    if (presentationParameters.BackBufferWidth != 0)
-                        width = presentationParameters.BackBufferWidth;
-                    if (presentationParameters.BackBufferHeight != 0)
-                        height = presentationParameters.BackBufferHeight;
+                    if (presentationParameters.IsFullScreen)
+                    {
+                        if (presentationParameters.BackBufferWidth != 0)
+                            width = presentationParameters.BackBufferWidth;
+                        if (presentationParameters.BackBufferHeight != 0)
+                            height = presentationParameters.BackBufferHeight;
+                    }
+                    else
+                    {
+                        if (requestedWindowClientWidth != 0)
+                            width = requestedWindowClientWidth;
+                        if (requestedWindowClientHeight != 0)
+                            height = requestedWindowClientHeight;
+                    }
                     deviceSettingsChanged = false;
                 }
                 finally
