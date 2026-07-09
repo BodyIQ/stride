@@ -108,7 +108,10 @@ jobs:
       - name: Validate code-only template package
         shell: pwsh
         run: |
-          $template = Get-ChildItem -Path bin/packages -Filter "Stride.Templates.CodeOnly.*.nupkg" | Sort-Object Name | Select-Object -Last 1
+          $template = Get-ChildItem -Path bin/packages -Filter "Stride.Templates.CodeOnly.*-${{ steps.suffix.outputs.value }}.nupkg" | Sort-Object Name | Select-Object -Last 1
+          if (-not $template) {
+            $template = Get-ChildItem -Path bin/packages -Filter "Stride.Templates.CodeOnly.*.nupkg" | Sort-Object LastWriteTimeUtc | Select-Object -Last 1
+          }
           if (-not $template) {
             echo "::error::Stride.Templates.CodeOnly package was not produced."
             exit 1
@@ -136,9 +139,20 @@ jobs:
             exit 1
           }
 
+          $smokeNuGetConfig = Join-Path $work "NuGet.Smoke.config"
+          $producedPackages = (Resolve-Path bin/packages).Path
+          @"
+          <configuration>
+            <packageSources>
+              <clear />
+              <add key="produced" value="$producedPackages" />
+              <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+            </packageSources>
+          </configuration>
+          "@ | Set-Content -Path $smokeNuGetConfig -Encoding UTF8
+
           dotnet restore (Join-Path $project "SmokeGame.fsproj") `
-            --source (Resolve-Path bin/packages).Path `
-            --source "https://api.nuget.org/v3/index.json" `
+            --configfile $smokeNuGetConfig `
             --no-cache
           if ($LASTEXITCODE -ne 0) {
             echo "::error::Generated stride-macos-fsharp project did not restore against the produced packages."
