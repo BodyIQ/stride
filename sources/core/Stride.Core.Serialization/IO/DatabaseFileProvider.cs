@@ -46,6 +46,9 @@ public sealed class DatabaseFileProvider : VirtualFileProviderBase
             }
             else if (!ContentIndexMap.TryGetValue(url, out objectId))
             {
+                if (TryOpenApplicationDataFallback(url, mode, access, share, streamFlags, out var fallbackStream))
+                    return fallbackStream;
+
                 throw new FileNotFoundException($"Unable to find the file [{url}]");
             }
 
@@ -101,13 +104,19 @@ public sealed class DatabaseFileProvider : VirtualFileProviderBase
     public override bool FileExists(string url)
     {
         return ContentIndexMap.TryGetValue(url, out var objectId)
-               && ObjectDatabase.Exists(objectId);
+               && ObjectDatabase.Exists(objectId)
+               || TryApplicationDataFallback(url);
     }
 
     public override long FileSize(string url)
     {
         if (!ContentIndexMap.TryGetValue(url, out var objectId))
+        {
+            if (TryApplicationDataFallback(url))
+                return VirtualFileSystem.ApplicationData.FileSize(url);
+
             throw new FileNotFoundException();
+        }
 
         return ObjectDatabase.GetSize(objectId);
     }
@@ -115,9 +124,35 @@ public sealed class DatabaseFileProvider : VirtualFileProviderBase
     public override string GetAbsolutePath(string url)
     {
         if (!ContentIndexMap.TryGetValue(url, out var objectId))
+        {
+            if (TryApplicationDataFallback(url))
+                return VirtualFileSystem.ApplicationData.GetAbsolutePath(url);
+
             throw new FileNotFoundException();
+        }
 
         return ObjectDatabase.GetFilePath(objectId);
+    }
+
+    private static bool TryApplicationDataFallback(string url)
+    {
+        return OperatingSystem.IsAndroid()
+               && !url.StartsWith(ObjectIdUrl, StringComparison.Ordinal)
+               && VirtualFileSystem.ApplicationData.FileExists(url);
+    }
+
+    private static bool TryOpenApplicationDataFallback(string url, VirtualFileMode mode, VirtualFileAccess access, VirtualFileShare share, StreamFlags streamFlags, out Stream stream)
+    {
+        if (mode == VirtualFileMode.Open
+            && access == VirtualFileAccess.Read
+            && TryApplicationDataFallback(url))
+        {
+            stream = VirtualFileSystem.ApplicationData.OpenStream(url, mode, access, share, streamFlags);
+            return true;
+        }
+
+        stream = Stream.Null;
+        return false;
     }
 
     /// <summary>

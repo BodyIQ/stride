@@ -56,7 +56,22 @@ public class BundleOdbBackend : IOdbBackend
         BundleDirectory = vfsRootUrl + "/bundles/";
 
         if (!VirtualFileSystem.DirectoryExists(BundleDirectory))
-            VirtualFileSystem.CreateDirectory(BundleDirectory);
+        {
+            try
+            {
+                VirtualFileSystem.CreateDirectory(BundleDirectory);
+            }
+            catch (NotImplementedException)
+            {
+                // Read-only providers such as Android's APK-backed /data mount do
+                // not need to create the bundle directory when no bundle exists.
+            }
+            catch (UnauthorizedAccessException)
+            {
+                // Same as above: loading a packaged bundle remains possible if it
+                // exists, and missing bundles are handled by LoadBundle callers.
+            }
+        }
 
         BundleResolve += DefaultBundleResolve;
     }

@@ -11,6 +11,8 @@
     <Compile Include="..\..\shared\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <None Include="buildTransitive\**\*.targets" PackagePath="buildTransitive\" Pack="true" />
+    <None Include="buildTransitive\**\*.props" PackagePath="buildTransitive\" Pack="true" />
     <None Include="Rendering\Properties.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Properties.cs</LastGenOutput>

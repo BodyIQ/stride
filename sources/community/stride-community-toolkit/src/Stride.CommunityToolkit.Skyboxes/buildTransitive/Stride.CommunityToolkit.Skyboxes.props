@@ -3,7 +3,7 @@
     <StrideCommunityToolkitSkyboxTexture>$(MSBuildThisFileDirectory)../contentFiles/any/net10.0/Resources/skybox_texture_hdr.dds</StrideCommunityToolkitSkyboxTexture>
   </PropertyGroup>
 
-  <ItemGroup Condition="Exists('$(StrideCommunityToolkitSkyboxTexture)')">
+  <ItemGroup Condition="Exists('$(StrideCommunityToolkitSkyboxTexture)') And '$(TargetPlatformIdentifier)' != 'android' And '$(TargetPlatformIdentifier)' != 'Android'">
     <Content Include="$(StrideCommunityToolkitSkyboxTexture)"
              Link="Resources/skybox_texture_hdr.dds"
              TargetPath="Resources/skybox_texture_hdr.dds"

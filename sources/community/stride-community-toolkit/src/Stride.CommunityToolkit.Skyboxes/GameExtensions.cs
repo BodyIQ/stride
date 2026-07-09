@@ -15,6 +15,7 @@ namespace Stride.CommunityToolkit.Skyboxes;
 public static class GameExtensions
 {
     private const string SkyboxTexture = "skybox_texture_hdr.dds";
+    private const string SkyboxEmbeddedResource = "Stride.CommunityToolkit.Skyboxes.Resources.skybox_texture_hdr.dds";
 
     /// <summary>
     /// Adds a skybox to the specified game scene, providing a background texture to create a more immersive environment.
@@ -35,7 +36,7 @@ public static class GameExtensions
     /// </example>
     public static Entity AddSkybox(this Game game, string? entityName = "Skybox")
     {
-        using var stream = new FileStream(Path.Combine(AppContext.BaseDirectory, "Resources", SkyboxTexture), FileMode.Open, FileAccess.Read);
+        using var stream = OpenSkyboxTextureStream();
 
         var texture = Texture.Load(game.GraphicsDevice, stream, TextureFlags.ShaderResource, GraphicsResourceUsage.Dynamic);
 
@@ -57,5 +58,19 @@ public static class GameExtensions
         entity.Scene = game.SceneSystem.SceneInstance.RootScene;
 
         return entity;
+    }
+
+    private static Stream OpenSkyboxTextureStream()
+    {
+        var skyboxPath = Path.Combine(AppContext.BaseDirectory, "Resources", SkyboxTexture);
+
+        if (File.Exists(skyboxPath))
+            return File.OpenRead(skyboxPath);
+
+        var stream = typeof(GameExtensions).Assembly.GetManifestResourceStream(SkyboxEmbeddedResource);
+
+        return stream ?? throw new FileNotFoundException(
+            $"Unable to find {SkyboxTexture} as an output file or embedded package resource.",
+            skyboxPath);
     }
 }

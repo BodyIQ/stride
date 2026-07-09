@@ -27,15 +27,29 @@ public class FileOdbBackend : IOdbBackend
         virtualFileProvider = resolveProviderResult.Provider;
         this.vfsRootUrl = resolveProviderResult.Path;
         vfsTempUrl = this.vfsRootUrl + TempDirectory;
-
-        // Ensure directories exists
-        if (!virtualFileProvider.DirectoryExists(this.vfsRootUrl))
-            virtualFileProvider.CreateDirectory(this.vfsRootUrl);
-
         IsReadOnly = isReadOnly;
 
-        contentIndexMap = !string.IsNullOrEmpty(indexName) ? Serialization.Contents.ContentIndexMap.Load(vfsRootUrl + VirtualFileSystem.DirectorySeparatorChar + indexName, isReadOnly)
-            : Serialization.Contents.ContentIndexMap.CreateInMemory();
+        // Ensure directories exist only for writable providers. Packaged mobile assets
+        // can live in a read-only provider such as the Android APK zip.
+        if (!IsReadOnly && !virtualFileProvider.DirectoryExists(this.vfsRootUrl))
+            virtualFileProvider.CreateDirectory(this.vfsRootUrl);
+
+        if (!string.IsNullOrEmpty(indexName))
+        {
+            try
+            {
+                contentIndexMap = Serialization.Contents.ContentIndexMap.Load(vfsRootUrl + VirtualFileSystem.DirectorySeparatorChar + indexName, isReadOnly);
+            }
+            catch (FileNotFoundException) when (IsReadOnly)
+            {
+                contentIndexMap = Serialization.Contents.ContentIndexMap.CreateInMemory();
+            }
+        }
+        else
+        {
+            contentIndexMap = Serialization.Contents.ContentIndexMap.CreateInMemory();
+        }
+
         if (!isReadOnly && !virtualFileProvider.DirectoryExists(vfsTempUrl))
         {
             try

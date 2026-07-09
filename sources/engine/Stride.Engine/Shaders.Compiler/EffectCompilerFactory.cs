@@ -78,7 +78,11 @@ namespace Stride.Shaders.Compiler
                 compiler = new NullEffectCompiler(fileProvider, selectedDatabase);
             }
 
-            return new EffectCompilerCache(compiler, selectedDatabase, taskSchedulerSelector);
+            var compilerCache = new EffectCompilerCache(compiler, selectedDatabase, taskSchedulerSelector);
+            if (Platform.Type == PlatformType.Android)
+                compilerCache.CompileEffectAsynchronously = false;
+
+            return compilerCache;
         }
     }
 }

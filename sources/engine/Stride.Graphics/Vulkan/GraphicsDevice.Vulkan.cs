@@ -58,6 +58,7 @@ namespace Stride.Graphics
         internal FenceHelper CommandListFence;
         internal FenceHelper CopyFence;
         internal ulong LastGPUSyncCopyFenceToCommandFence;
+        internal bool HasTimelineSemaphoreSupport;
 
         internal HeapPool DescriptorPools;
         internal const uint MaxDescriptorSetCount = 256;
@@ -206,6 +207,15 @@ namespace Stride.Graphics
         {
             lock (QueueLock)
             {
+                if (!HasTimelineSemaphoreSupport)
+                {
+                    CheckResult(NativeDeviceApi.vkQueueWaitIdle(NativeCommandQueue));
+                    CommandListFence.LastCompletedFence = CommandListFence.NextFenceValue;
+                    FrameFence.LastCompletedFence = FrameFence.NextFenceValue++;
+                    graphicsResourceLinkCollector.Release();
+                    return;
+                }
+
                 // Add a dependency between command list fence and frame fence
                 var commandListFenceValue = CommandListFence.NextFenceValue;
                 var frameFenceValue = FrameFence.NextFenceValue++;
@@ -272,6 +282,29 @@ namespace Stride.Graphics
             {
                 var commandListFenceValue = CommandListFence.NextFenceValue++;
                 nextCommandListFenceValue = commandListFenceValue + 1;
+
+                if (!HasTimelineSemaphoreSupport)
+                {
+                    var submitInfo = new VkSubmitInfo
+                    {
+                        sType = VkStructureType.SubmitInfo,
+                        commandBufferCount = (uint)count,
+                        pCommandBuffers = commandBuffers,
+                    };
+
+                    CheckResult(NativeDeviceApi.vkQueueSubmit(NativeCommandQueue, 1, &submitInfo, VkFence.Null));
+                    CheckResult(NativeDeviceApi.vkQueueWaitIdle(NativeCommandQueue));
+                    CopyFence.LastCompletedFence = CopyFence.NextFenceValue;
+                    CommandListFence.LastCompletedFence = nextCommandListFenceValue;
+
+                    if (IsDebugMode)
+                    {
+                        for (int i = 0; i < count; i++)
+                            DebugAggregateLocalCounters(commandLists[i].Builder.DebugScopeExtractLocalCounters());
+                    }
+                }
+                else
+                {
                 // Make sure all copies are done as well
                 var copyFenceValue = CopyFence.NextFenceValue;
                 var waitFenceValues = stackalloc ulong[] { commandListFenceValue, copyFenceValue };
@@ -312,6 +345,7 @@ namespace Stride.Graphics
                 {
                     for (int i = 0; i < count; i++)
                         DebugAggregateLocalCounters(commandLists[i].Builder.DebugScopeExtractLocalCounters());
+                }
                 }
             }
 
@@ -497,15 +531,19 @@ namespace Stride.Graphics
             // a VK_EXT_debug_report dependency to satisfy validation.
             IsProfilingSupported = IsDebugMode && GraphicsAdapterFactory.GetInstance(IsDebugMode).HasDebugUtilsSupport;
 
-            // Activate VK_KHR_uniform_buffer_standard_layout (promoted Vulkan 1.2)
-            var uniformBufferStandardLayoutFeature = new VkPhysicalDeviceUniformBufferStandardLayoutFeatures();
-            uniformBufferStandardLayoutFeature.sType = VkStructureType.PhysicalDeviceUniformBufferStandardLayoutFeatures;
-            uniformBufferStandardLayoutFeature.uniformBufferStandardLayout = VkBool32.True;
+            // Optional Vulkan 1.2+ features. Query first, then only pass supported booleans
+            // back to vkCreateDevice; older Android drivers return VK_ERROR_FEATURE_NOT_PRESENT
+            // if any pNext feature is forced on without support.
+            var uniformBufferStandardLayoutFeature = new VkPhysicalDeviceUniformBufferStandardLayoutFeatures
+            {
+                sType = VkStructureType.PhysicalDeviceUniformBufferStandardLayoutFeatures,
+            };
 
             // FP16 in shaders (SPIR-V Float16 capability) — required by some HLSL→SPIR-V output.
             var shaderFloat16Int8Features = new VkPhysicalDeviceShaderFloat16Int8Features
             {
                 sType = VkStructureType.PhysicalDeviceShaderFloat16Int8Features,
+                pNext = &uniformBufferStandardLayoutFeature,
             };
 
             // Timeline semaphores (core in Vulkan 1.2+, extension in 1.1)
@@ -542,22 +580,49 @@ namespace Stride.Graphics
             };
             NativeInstanceApi.vkGetPhysicalDeviceFeatures2(NativePhysicalDevice, &physicalDeviceFeatures2);
 
-            if (!timelineSemaphoreFeatures.timelineSemaphore)
-                throw new InvalidOperationException("Vulkan: Timeline semaphores are not supported by this device, but are required by Stride.");
-            timelineSemaphoreFeatures.timelineSemaphore = VkBool32.True;
+            HasTimelineSemaphoreSupport = timelineSemaphoreFeatures.timelineSemaphore;
+            if (HasTimelineSemaphoreSupport)
+                timelineSemaphoreFeatures.timelineSemaphore = VkBool32.True;
             // Keep shaderInt8 disabled regardless; only enable shaderFloat16 if supported.
             shaderFloat16Int8Features.shaderInt8 = VkBool32.False;
-            timelineSemaphoreFeatures.pNext = &shaderFloat16Int8Features;
-            shaderFloat16Int8Features.pNext = &uniformBufferStandardLayoutFeature;
 
-            // Only keep multiview in the chain when the device supports it; drop the geom/tess sub-features regardless.
-            void* pNextChainHead = &timelineSemaphoreFeatures;
+            // Only keep optional feature structs in the create chain when they enable something
+            // the device reported. Structs with all-false features are harmless in theory, but
+            // avoiding them keeps older Android Vulkan stacks on the lowest-friction path.
+            void* pNextChainHead = null;
+            if (uniformBufferStandardLayoutFeature.uniformBufferStandardLayout)
+            {
+                uniformBufferStandardLayoutFeature.pNext = pNextChainHead;
+                pNextChainHead = &uniformBufferStandardLayoutFeature;
+            }
+            if (shaderFloat16Int8Features.shaderFloat16)
+            {
+                shaderFloat16Int8Features.pNext = pNextChainHead;
+                pNextChainHead = &shaderFloat16Int8Features;
+            }
+            if (HasTimelineSemaphoreSupport)
+            {
+                timelineSemaphoreFeatures.pNext = pNextChainHead;
+                pNextChainHead = &timelineSemaphoreFeatures;
+            }
             if (multiviewFeatures.multiview)
             {
                 multiviewFeatures.multiviewGeometryShader = VkBool32.False;
                 multiviewFeatures.multiviewTessellationShader = VkBool32.False;
+                multiviewFeatures.pNext = pNextChainHead;
                 pNextChainHead = &multiviewFeatures;
             }
+#if STRIDE_PLATFORM_ANDROID
+            if (HasAndroidHardwareBufferSupport && samplerYcbcrConversionFeatures.samplerYcbcrConversion)
+            {
+                samplerYcbcrConversionFeatures.pNext = pNextChainHead;
+                pNextChainHead = &samplerYcbcrConversionFeatures;
+            }
+            else
+            {
+                HasAndroidHardwareBufferSupport = false;
+            }
+#endif
             // Re-attach portability subset at the head of the create-info chain so MoltenVK sees the
             // feature flags it reported. The values were populated by the query above; pass them back as-is.
             if (isPortabilitySubsetDevice)
@@ -680,6 +745,22 @@ namespace Stride.Graphics
             {
                 var copyFenceValue = CopyFence.NextFenceValue++;
                 var nextCopyFenceValue = copyFenceValue + 1;
+
+                if (!HasTimelineSemaphoreSupport)
+                {
+                    var fallbackSubmitInfo = new VkSubmitInfo
+                    {
+                        sType = VkStructureType.SubmitInfo,
+                        commandBufferCount = 1,
+                        pCommandBuffers = &commandBuffer,
+                    };
+
+                    CheckResult(NativeDeviceApi.vkQueueSubmit(NativeCommandQueue, 1, &fallbackSubmitInfo, VkFence.Null));
+                    CheckResult(NativeDeviceApi.vkQueueWaitIdle(NativeCommandQueue));
+                    CopyFence.LastCompletedFence = nextCopyFenceValue;
+
+                    return nextCopyFenceValue;
+                }
 
                 var timelineInfo = new VkTimelineSemaphoreSubmitInfo
                 {
@@ -818,6 +899,27 @@ namespace Stride.Graphics
             {
                 var commandListFenceValue = CommandListFence.NextFenceValue++;
                 nextCommandListFenceValue = commandListFenceValue + 1;
+
+                if (!HasTimelineSemaphoreSupport)
+                {
+                    var nativeCommandBufferCopy = commandList.NativeCommandBuffer;
+                    var submitInfo = new VkSubmitInfo
+                    {
+                        sType = VkStructureType.SubmitInfo,
+                        commandBufferCount = 1,
+                        pCommandBuffers = &nativeCommandBufferCopy,
+                    };
+
+                    CheckResult(NativeDeviceApi.vkQueueSubmit(NativeCommandQueue, 1, &submitInfo, VkFence.Null));
+                    CheckResult(NativeDeviceApi.vkQueueWaitIdle(NativeCommandQueue));
+                    CopyFence.LastCompletedFence = CopyFence.NextFenceValue;
+                    CommandListFence.LastCompletedFence = nextCommandListFenceValue;
+
+                    if (IsDebugMode)
+                        DebugAggregateLocalCounters(commandList.Builder.DebugScopeExtractLocalCounters());
+                }
+                else
+                {
                 // Make sure all copies are done as well
                 var copyFenceValue = CopyFence.NextFenceValue;
                 var waitFenceValues = stackalloc ulong[] { commandListFenceValue, copyFenceValue };
@@ -857,6 +959,7 @@ namespace Stride.Graphics
 
                 if (IsDebugMode)
                     DebugAggregateLocalCounters(commandList.Builder.DebugScopeExtractLocalCounters());
+                }
             }
 
             // Collect resources
@@ -939,12 +1042,15 @@ namespace Stride.Graphics
             {
                 this.graphicsDevice = graphicsDevice;
                 var timelineInfo = new VkSemaphoreTypeCreateInfo { sType = VkStructureType.SemaphoreTypeCreateInfo, semaphoreType = VkSemaphoreType.Timeline };
-                var createInfo = new VkSemaphoreCreateInfo { sType = VkStructureType.SemaphoreCreateInfo, pNext = &timelineInfo };
+                var createInfo = new VkSemaphoreCreateInfo { sType = VkStructureType.SemaphoreCreateInfo, pNext = graphicsDevice.HasTimelineSemaphoreSupport ? &timelineInfo : null };
                 graphicsDevice.CheckResult(graphicsDevice.NativeDeviceApi.vkCreateSemaphore(graphicsDevice.NativeDevice, &createInfo, null, out Semaphore));
             }
 
             internal ulong GetCompletedValue()
             {
+                if (!graphicsDevice.HasTimelineSemaphoreSupport)
+                    return LastCompletedFence;
+
                 ulong result = 0;
                 graphicsDevice.NativeDeviceApi.vkGetSemaphoreCounterValue(graphicsDevice.NativeDevice, Semaphore, &result);
                 return result;
@@ -963,6 +1069,13 @@ namespace Stride.Graphics
             {
                 if (IsFenceCompleteInternal(fenceValue))
                     return;
+
+                if (!graphicsDevice.HasTimelineSemaphoreSupport)
+                {
+                    graphicsDevice.CheckResult(graphicsDevice.NativeDeviceApi.vkQueueWaitIdle(graphicsDevice.NativeCommandQueue));
+                    LastCompletedFence = fenceValue;
+                    return;
+                }
 
                 // TODO D3D12 in case of concurrency, this lock could end up blocking too long a second thread with lower fenceValue then first one
                 //lock (Fence)

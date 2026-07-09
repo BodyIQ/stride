@@ -152,27 +152,43 @@ namespace Stride.Graphics
             {
                 // Signal semaphore (that we will wait on during present for GPU=>GPU sync, to make sure all previous command buffers have been executed)
                 var submitSemaphore = submitSemaphores[currentBufferIndex];
-                var frameFence = GraphicsDevice.FrameFence.Semaphore;
-                var frameFenceValue = GraphicsDevice.FrameFence.NextFenceValue - 1;
-                var pipelineStageFlags = VkPipelineStageFlags.BottomOfPipe;
-                var timelineInfo = new VkTimelineSemaphoreSubmitInfo
+                VkSubmitInfo submitInfo;
+                if (GraphicsDevice.HasTimelineSemaphoreSupport)
                 {
-                    sType = VkStructureType.TimelineSemaphoreSubmitInfo,
-                    waitSemaphoreValueCount = 1,
-                    pWaitSemaphoreValues = &frameFenceValue,
-                };
-                var submitInfo = new VkSubmitInfo
-                {
-                    sType = VkStructureType.SubmitInfo,
-                    pNext = &timelineInfo,
-                    waitSemaphoreCount = 1,
-                    pWaitSemaphores = &frameFence,
-                    pWaitDstStageMask = &pipelineStageFlags,
-                    signalSemaphoreCount = 1,
-                    pSignalSemaphores = &submitSemaphore,
-                };
+                    var frameFence = GraphicsDevice.FrameFence.Semaphore;
+                    var frameFenceValue = GraphicsDevice.FrameFence.NextFenceValue - 1;
+                    var pipelineStageFlags = VkPipelineStageFlags.BottomOfPipe;
+                    var timelineInfo = new VkTimelineSemaphoreSubmitInfo
+                    {
+                        sType = VkStructureType.TimelineSemaphoreSubmitInfo,
+                        waitSemaphoreValueCount = 1,
+                        pWaitSemaphoreValues = &frameFenceValue,
+                    };
+                    submitInfo = new VkSubmitInfo
+                    {
+                        sType = VkStructureType.SubmitInfo,
+                        pNext = &timelineInfo,
+                        waitSemaphoreCount = 1,
+                        pWaitSemaphores = &frameFence,
+                        pWaitDstStageMask = &pipelineStageFlags,
+                        signalSemaphoreCount = 1,
+                        pSignalSemaphores = &submitSemaphore,
+                    };
 
-                GraphicsDevice.CheckResult(GraphicsDevice.NativeDeviceApi.vkQueueSubmit(GraphicsDevice.NativeCommandQueue, 1, &submitInfo, frameFences[currentFrameIndex]));
+                    GraphicsDevice.CheckResult(GraphicsDevice.NativeDeviceApi.vkQueueSubmit(GraphicsDevice.NativeCommandQueue, 1, &submitInfo, frameFences[currentFrameIndex]));
+                }
+                else
+                {
+                    GraphicsDevice.CheckResult(GraphicsDevice.NativeDeviceApi.vkQueueWaitIdle(GraphicsDevice.NativeCommandQueue));
+                    submitInfo = new VkSubmitInfo
+                    {
+                        sType = VkStructureType.SubmitInfo,
+                        signalSemaphoreCount = 1,
+                        pSignalSemaphores = &submitSemaphore,
+                    };
+
+                    GraphicsDevice.CheckResult(GraphicsDevice.NativeDeviceApi.vkQueueSubmit(GraphicsDevice.NativeCommandQueue, 1, &submitInfo, frameFences[currentFrameIndex]));
+                }
 
                 var currentBufferIndexCopy = currentBufferIndex;
                 var swapChainCopy = swapChain;
@@ -247,6 +263,23 @@ namespace Stride.Graphics
                 var commandListFence = GraphicsDevice.CommandListFence.Semaphore;
                 var commandListFenceValue = GraphicsDevice.CommandListFence.NextFenceValue++;
                 var nextCommandListFenceValue = commandListFenceValue + 1;
+                if (!GraphicsDevice.HasTimelineSemaphoreSupport)
+                {
+                    var fallbackPipelineStageFlags = VkPipelineStageFlags.ColorAttachmentOutput;
+                    var fallbackSubmitInfo = new VkSubmitInfo
+                    {
+                        sType = VkStructureType.SubmitInfo,
+                        waitSemaphoreCount = 1,
+                        pWaitSemaphores = &acquireSemaphore,
+                        pWaitDstStageMask = &fallbackPipelineStageFlags,
+                    };
+
+                    GraphicsDevice.CheckResult(GraphicsDevice.NativeDeviceApi.vkQueueSubmit(GraphicsDevice.NativeCommandQueue, 1, &fallbackSubmitInfo, VkFence.Null));
+                    GraphicsDevice.CheckResult(GraphicsDevice.NativeDeviceApi.vkQueueWaitIdle(GraphicsDevice.NativeCommandQueue));
+                    GraphicsDevice.CommandListFence.LastCompletedFence = nextCommandListFenceValue;
+                    return;
+                }
+
                 var waitFenceValues = stackalloc ulong[] { commandListFenceValue, 0 }; // second value is ignored (binary semaphore)
                 var timelineInfo = new VkTimelineSemaphoreSubmitInfo
                 {

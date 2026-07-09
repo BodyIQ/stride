@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Stride contributors",
+  "classifications": [ "Stride", "Game", "F#", "Android" ],
+  "name": "Stride Android code-only game (F#)",
+  "identity": "Stride.Templates.CodeOnly.Android.FSharp",
+  "groupIdentity": "Stride.Templates.CodeOnly.Android",
+  "shortName": "stride-android-fsharp",
+  "tags": {
+    "language": "F#",
+    "type": "project"
+  },
+  "sourceName": "MyTemplate",
+  "preferNameDirectory": true
+}

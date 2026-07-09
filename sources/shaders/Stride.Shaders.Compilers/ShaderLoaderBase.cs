@@ -168,7 +168,22 @@ public abstract class ShaderLoaderBase(IShaderCache fileCache) : IExternalShader
         for (int i = 0; i < macros.Length; ++i)
             defines[i] = (macros[i].Name, macros[i].Definition);
 
-        var text = MonoGamePreProcessor.Run(code, filename, defines);
+        if (code.Length > 0 && code[^1] != '\n' && code[^1] != '\r')
+            code += Environment.NewLine;
+
+        string text;
+        try
+        {
+            text = MonoGamePreProcessor.Run(code, filename, defines);
+        }
+        catch (Exception ex)
+        {
+            var tailLength = Math.Min(code.Length, 512);
+            var codeTail = tailLength > 0 ? SanitizeDiagnosticText(code.Substring(code.Length - tailLength, tailLength)) : string.Empty;
+            var macroList = FormatMacroList(defines);
+            throw new InvalidOperationException($"Failed to preprocess shader '{filename ?? "<unknown>"}' ({code.Length} chars, macros: [{macroList}]): {ex.GetType().FullName}: {ex.Message}. Tail: {codeTail}", ex);
+        }
+
         var sdslc = new SDSLC
         {
             ShaderLoader = this,
@@ -178,12 +193,35 @@ public abstract class ShaderLoaderBase(IShaderCache fileCache) : IExternalShader
         var log = Log ?? new LoggerResult();
         var emitSourceHash = !SuppressSourceHash;
         SuppressSourceHash = false; // Reset after use
-        if (!sdslc.Compile(filename, text, hash, macros, log, out buffer, new() { RegisterInCache = registerInCache, EmitSourceHash = emitSourceHash, OriginalCode = code }))
+        bool compiled;
+        try
+        {
+            compiled = sdslc.Compile(filename, text, hash, macros, log, out buffer, new() { RegisterInCache = registerInCache, EmitSourceHash = emitSourceHash, OriginalCode = code });
+        }
+        catch (Exception ex)
+        {
+            var tailLength = Math.Min(text.Length, 1024);
+            var textTail = tailLength > 0 ? SanitizeDiagnosticText(text.Substring(text.Length - tailLength, tailLength)) : string.Empty;
+            var macroList = FormatMacroList(defines);
+            throw new InvalidOperationException($"Failed to compile shader '{filename ?? "<unknown>"}' after preprocessing ({code.Length} original chars, {text.Length} preprocessed chars, macros: [{macroList}]): {ex.GetType().FullName}: {ex.Message}. Preprocessed tail: {textTail}", ex);
+        }
+
+        if (!compiled)
         {
             if (log is LoggerResult loggerResult && loggerResult.HasErrors)
-                throw new InvalidOperationException(string.Join(Environment.NewLine, loggerResult.Messages.Where(m => m.Type >= LogMessageType.Error).Select(m => m.ToString())));
+                throw new InvalidOperationException($"Failed to compile shader '{filename ?? "<unknown>"}': {string.Join(Environment.NewLine, loggerResult.Messages.Where(m => m.Type >= LogMessageType.Error).Select(m => m.ToString()))}");
             return false;
         }
         return true;
+    }
+
+    private static string SanitizeDiagnosticText(string text)
+    {
+        return text.Replace("\\", "\\\\").Replace("\r", "\\r").Replace("\n", "\\n");
+    }
+
+    private static string FormatMacroList(IEnumerable<(string Name, string Definition)> defines)
+    {
+        return string.Join(", ", defines.Select(x => string.IsNullOrEmpty(x.Definition) ? x.Name : $"{x.Name}={x.Definition}"));
     }
 }

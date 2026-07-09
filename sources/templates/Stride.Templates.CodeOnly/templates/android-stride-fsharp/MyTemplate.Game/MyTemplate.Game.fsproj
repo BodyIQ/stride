@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>MyTemplate</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Game.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Stride.CommunityToolkit" Version="$EngineVersion$" />
+    <PackageReference Include="Stride.CommunityToolkit.Skyboxes" Version="$EngineVersion$" />
+  </ItemGroup>
+
+</Project>

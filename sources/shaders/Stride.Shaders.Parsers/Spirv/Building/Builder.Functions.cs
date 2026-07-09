@@ -36,9 +36,18 @@ public partial class SpirvBuilder
         if (!IsBlockTermination(lastInstruction.Op))
         {
             if (CurrentFunction.Value.FunctionType.ReturnType != ScalarType.Void)
-                throw new InvalidOperationException("No function termination, but a return value is expected");
-
-            Return(null);
+            {
+                // The SDSL control-flow builder can leave an empty trailing label after branches that
+                // already return from all reachable paths. Terminate that synthetic block explicitly.
+                if (lastInstruction.Op == Op.OpLabel)
+                    Insert(new OpUnreachable());
+                else
+                    throw new InvalidOperationException($"No function termination, but a return value is expected for function '{CurrentFunction.Value.Name}' with return type '{CurrentFunction.Value.FunctionType.ReturnType}' and last op '{lastInstruction.Op}'");
+            }
+            else
+            {
+                Return(null);
+            }
         }
 
         Buffer.Insert(Position++, new OpFunctionEnd());

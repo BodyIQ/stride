@@ -87,4 +87,26 @@
       <Abi>x86</Abi>
     </AndroidNativeLibrary>
   </ItemGroup>
+
+  <Target Name="_StrideGraphicsDeployPackageAssetsAsAndroidAsset"
+          BeforeTargets="_ComputeAndroidAssetsPaths"
+          Condition="'$(StridePlatform)' == 'Android'">
+    <ItemGroup>
+      <_StrideGraphicsPackageAsset Include="$(MSBuildThisFileDirectory)..\stride\**\*.*" />
+      <_StrideGraphicsPackageShader Include="$(MSBuildThisFileDirectory)..\stride\Assets\**\*.sdsl" />
+      <_StrideGraphicsPackageShader Include="$(MSBuildThisFileDirectory)..\stride\Assets\**\*.sdfx" />
+    </ItemGroup>
+    <AssignTargetPath Files="@(_StrideGraphicsPackageAsset)"
+                      RootFolder="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\'))">
+      <Output TaskParameter="AssignedFiles" ItemName="_StrideGraphicsPackageAssetTargeted" />
+    </AssignTargetPath>
+    <ItemGroup>
+      <AndroidAsset Include="@(_StrideGraphicsPackageAssetTargeted)">
+        <Link>data/%(_StrideGraphicsPackageAssetTargeted.TargetPath)</Link>
+      </AndroidAsset>
+      <AndroidAsset Include="@(_StrideGraphicsPackageShader)">
+        <Link>data/shaders/%(_StrideGraphicsPackageShader.Filename)%(_StrideGraphicsPackageShader.Extension)</Link>
+      </AndroidAsset>
+    </ItemGroup>
+  </Target>
 </Project>

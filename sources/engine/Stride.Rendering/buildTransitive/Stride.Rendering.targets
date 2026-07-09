@@ -1,0 +1,28 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--
+    Runtime shader compilation loads Stride's authored rendering package files from the
+    package-local stride/ folder. Android does not copy arbitrary NuGet package-root files into
+    the APK, so stage them as Android assets for package consumers.
+  -->
+  <Target Name="_StrideRenderingDeployPackageAssetsAsAndroidAsset"
+          BeforeTargets="_ComputeAndroidAssetsPaths"
+          Condition="'$(StridePlatform)' == 'Android'">
+    <ItemGroup>
+      <_StrideRenderingPackageAsset Include="$(MSBuildThisFileDirectory)..\stride\**\*.*" />
+      <_StrideRenderingPackageShader Include="$(MSBuildThisFileDirectory)..\stride\Assets\**\*.sdsl" />
+      <_StrideRenderingPackageShader Include="$(MSBuildThisFileDirectory)..\stride\Assets\**\*.sdfx" />
+    </ItemGroup>
+    <AssignTargetPath Files="@(_StrideRenderingPackageAsset)"
+                      RootFolder="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\'))">
+      <Output TaskParameter="AssignedFiles" ItemName="_StrideRenderingPackageAssetTargeted" />
+    </AssignTargetPath>
+    <ItemGroup>
+      <AndroidAsset Include="@(_StrideRenderingPackageAssetTargeted)">
+        <Link>data/%(_StrideRenderingPackageAssetTargeted.TargetPath)</Link>
+      </AndroidAsset>
+      <AndroidAsset Include="@(_StrideRenderingPackageShader)">
+        <Link>data/shaders/%(_StrideRenderingPackageShader.Filename)%(_StrideRenderingPackageShader.Extension)</Link>
+      </AndroidAsset>
+    </ItemGroup>
+  </Target>
+</Project>

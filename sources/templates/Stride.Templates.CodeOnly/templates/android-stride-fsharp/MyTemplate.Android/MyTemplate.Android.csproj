@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-android</TargetFramework>
+    <SupportedOSPlatformVersion>24</SupportedOSPlatformVersion>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>MyTemplate.Android</RootNamespace>
+    <ApplicationId>com.gurdasnijor.mytemplate</ApplicationId>
+    <ApplicationVersion>1</ApplicationVersion>
+    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <AndroidResgenNamespace>$(AssemblyName)</AndroidResgenNamespace>
+    <RuntimeIdentifier>android-arm64</RuntimeIdentifier>
+    <StridePlatform>Android</StridePlatform>
+    <StrideGraphicsApi>Vulkan</StrideGraphicsApi>
+    <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+    <AndroidApplicationIcon>@mipmap/appicon</AndroidApplicationIcon>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Stride.Engine" Version="$EngineVersion$" />
+    <PackageReference Include="Stride.Games" Version="$EngineVersion$" />
+    <ProjectReference Include="..\MyTemplate.Game\MyTemplate.Game.fsproj" />
+  </ItemGroup>
+
+</Project>

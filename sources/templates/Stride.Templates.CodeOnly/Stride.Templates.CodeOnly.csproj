@@ -78,7 +78,7 @@
           DestinationFiles="@(_StrideCodeOnlyTemplateSource->'$(TemplateContentRoot)/%(RecursiveDir)%(Filename)%(Extension)')" />
 
     <ItemGroup>
-      <_StrideCodeOnlyTemplateText Include="$(TemplateContentRoot)/**/*.fsproj;$(TemplateContentRoot)/**/*.fs;$(TemplateContentRoot)/**/*.json;$(TemplateContentRoot)/**/*.md" />
+      <_StrideCodeOnlyTemplateText Include="$(TemplateContentRoot)/**/*.csproj;$(TemplateContentRoot)/**/*.fsproj;$(TemplateContentRoot)/**/*.cs;$(TemplateContentRoot)/**/*.fs;$(TemplateContentRoot)/**/*.json;$(TemplateContentRoot)/**/*.md" />
     </ItemGroup>
 
     <WriteLinesToFile File="%(_StrideCodeOnlyTemplateText.Identity)"

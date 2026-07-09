@@ -1813,14 +1813,15 @@ internal class Preprocessor : IDisposable {
 		for (;;) {
 			Token	tok;
 			if (!isActive()) {
+                var inactiveSource = source;
 				try {
 					/* XXX Tell lexer to ignore warnings. */
-					source.setActive(false);
+					inactiveSource?.setActive(false);
 					tok = source_token();
 				}
 				finally {
 					/* XXX Tell lexer to stop ignoring warnings. */
-					source.setActive(true);
+					inactiveSource?.setActive(true);
 				}
 				switch (tok.getType()) {
 					case Token.HASH:

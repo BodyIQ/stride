@@ -12,6 +12,8 @@
     </ItemGroup>
 
     <ItemGroup>
+        <EmbeddedResource Include="Resources/skybox_texture_hdr.dds"
+                          LogicalName="Stride.CommunityToolkit.Skyboxes.Resources.skybox_texture_hdr.dds" />
         <Content Include="Resources/skybox_texture_hdr.dds"
                  Pack="true"
                  PackagePath="contentFiles/any/$(TargetFramework)/Resources/skybox_texture_hdr.dds;content/Resources/skybox_texture_hdr.dds">
