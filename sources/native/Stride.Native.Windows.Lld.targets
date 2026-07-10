@@ -113,7 +113,7 @@
   <Target Name="CompileNativeClang_Windows_Lld" 
           Inputs="@(StrideNativeCFile);@(StrideNativeHFile)" 
           Outputs="@(StrideNativeOutput)" 
-          Condition="('$(TargetFramework)' == '$(StrideFramework)') And $([MSBuild]::IsOSPlatform('Windows')) And $(DesignTimeBuild) != true And $(BuildingProject) != false And '$(StrideNativeBuildModeClang)' == 'true'" 
+          Condition="('$(TargetFramework)' == '$(StrideFramework)') And $([MSBuild]::IsOSPlatform('Windows')) And $(_StridePlatforms.Contains(';Windows;')) And $(DesignTimeBuild) != true And $(BuildingProject) != false And '$(StrideNativeBuildModeClang)' == 'true'"
           BeforeTargets="CoreCompile" 
           DependsOnTargets="_StrideRegisterNativeOutputs">
 

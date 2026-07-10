@@ -96,9 +96,11 @@ jobs:
           }
           $packageTarget = "Package"
           $maxCpuCount = "-m"
+          $autoAddHost = "true"
           if ("${{ inputs.platform-windows }}" -ne "true") {
             $packageTarget = "CodeOnlyPackages"
             $maxCpuCount = "-m:1"
+            $autoAddHost = "false"
           }
           echo "Building for platforms: $platforms"
           echo "Package target: $packageTarget"
@@ -108,6 +110,7 @@ jobs:
             $maxCpuCount -nr:false `
             -p:StridePlatforms=$($platforms.Replace(';','%3B')) `
             -p:StrideGraphicsApiDependentBuildAll=true `
+            -p:StridePlatformAutoAddHost=$autoAddHost `
             -p:StrideSign=false `
             -p:StrideVersionSuffix=${{ steps.suffix.outputs.value }} `
             -p:StrideBuildPrerequisitesInstaller=false `
