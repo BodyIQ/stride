@@ -49,12 +49,24 @@ namespace Stride.Graphics
 
         internal static unsafe VkDescriptorSetLayout CreateNativeDescriptorSetLayout(GraphicsDevice device, IList<DescriptorSetLayoutBuilder.Entry> entries, out uint[] typeCounts)
         {
+            typeCounts = new uint[DescriptorTypeCount];
+
+            if (entries.Count == 0)
+            {
+                var emptyCreateInfo = new VkDescriptorSetLayoutCreateInfo
+                {
+                    sType = VkStructureType.DescriptorSetLayoutCreateInfo,
+                    bindingCount = 0,
+                    pBindings = null,
+                };
+                device.CheckResult(device.NativeDeviceApi.vkCreateDescriptorSetLayout(device.NativeDevice, &emptyCreateInfo, null, out var emptyDescriptorSetLayout));
+                return emptyDescriptorSetLayout;
+            }
+
             var bindings = new VkDescriptorSetLayoutBinding[entries.Count];
             var immutableSamplers = new VkSampler[entries.Count];
 
             int usedBindingCount = 0;
-
-            typeCounts = new uint[DescriptorTypeCount];
 
             fixed (VkSampler* immutableSamplersPointer = &immutableSamplers[0])
             {

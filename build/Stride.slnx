@@ -169,6 +169,13 @@
     </Project>
   </Folder>
   <Folder Name="/22-StrideRuntime.Shaders/">
+    <Project Path="../sources/shaders/Stride.FShade/Stride.FShade.fsproj">
+      <BuildType Solution="Rider|*" Project="Debug" />
+    </Project>
+    <Project Path="../sources/shaders/Stride.FShade.Smoke/Stride.FShade.Smoke.fsproj">
+      <BuildType Solution="Rider|*" Project="Debug" />
+      <Build Solution="Rider|*" Project="false" />
+    </Project>
     <Project Path="../sources/shaders/Stride.Shaders.Compilers/Stride.Shaders.Compilers.csproj">
       <BuildType Solution="Rider|*" Project="Debug" />
     </Project>

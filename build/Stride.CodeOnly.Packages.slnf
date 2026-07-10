@@ -4,6 +4,7 @@
     "projects": [
       "..\\sources\\assets\\Stride.AssetCompiler\\Stride.AssetCompiler.csproj",
       "..\\sources\\engine\\Stride.BepuPhysics\\Stride.BepuPhysics.Debug\\Stride.BepuPhysics.Debug.csproj",
+      "..\\sources\\shaders\\Stride.FShade\\Stride.FShade.fsproj",
       "..\\sources\\templates\\Stride.Templates.CodeOnly\\Stride.Templates.CodeOnly.csproj"
     ]
   }

@@ -200,6 +200,117 @@ jobs:
             exit 1
           }
 
+      - name: Validate FShade package
+        shell: pwsh
+        run: |
+          $fshadePackage = Get-ChildItem -Path bin/packages -Filter "Stride.FShade.*-${{ steps.suffix.outputs.value }}.nupkg" | Sort-Object Name | Select-Object -Last 1
+          if (-not $fshadePackage) {
+            $fshadePackage = Get-ChildItem -Path bin/packages -Filter "Stride.FShade.*.nupkg" | Sort-Object LastWriteTimeUtc | Select-Object -Last 1
+          }
+          if (-not $fshadePackage) {
+            echo "::error::Stride.FShade package was not produced."
+            exit 1
+          }
+
+          $packageVersion = $fshadePackage.Name -replace '^Stride\.FShade\.(.*)\.nupkg$', '$1'
+          echo "::notice::Validating Stride.FShade $packageVersion"
+
+          $work = Join-Path $env:RUNNER_TEMP "stride-fshade-package-smoke"
+          Remove-Item -Recurse -Force $work -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $work | Out-Null
+
+          $project = Join-Path $work "FShadePackageSmoke"
+          dotnet new console -lang F# -n FShadePackageSmoke -o $project
+          if ($LASTEXITCODE -ne 0) {
+            echo "::error::Failed to create FShade package smoke project."
+            exit 1
+          }
+
+          dotnet add (Join-Path $project "FShadePackageSmoke.fsproj") package Stride.FShade --version $packageVersion --no-restore
+          if ($LASTEXITCODE -ne 0) {
+            echo "::error::Failed to add Stride.FShade package reference."
+            exit 1
+          }
+
+          $smokeNuGetConfig = Join-Path $work "NuGet.FShade.Smoke.config"
+          $producedPackages = (Resolve-Path bin/packages).Path
+          @"
+          <configuration>
+            <packageSources>
+              <clear />
+              <add key="produced" value="$producedPackages" />
+              <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+            </packageSources>
+          </configuration>
+          "@ | Set-Content -Path $smokeNuGetConfig -Encoding UTF8
+
+          dotnet restore (Join-Path $project "FShadePackageSmoke.fsproj") `
+            --configfile $smokeNuGetConfig `
+            --no-cache
+          if ($LASTEXITCODE -ne 0) {
+            echo "::error::FShade package smoke project did not restore against the produced packages."
+            exit 1
+          }
+
+          @'
+          open Aardvark.Base
+          open FShade
+          open Stride.FShade
+
+          type Vertex =
+              {
+                  [<StridePosition>]
+                  Position : V4f
+
+                  [<StrideColor>]
+                  Color : V4f
+              }
+
+          [<ReflectedDefinition>]
+          let vertexMain (v : Vertex) =
+              vertex {
+                  let transform : M44f = uniform?PerModel?ModelViewProjTrafo
+                  return { v with Position = transform * v.Position }
+              }
+
+          [<ReflectedDefinition>]
+          let fragmentMain (v : Vertex) =
+              fragment {
+                  return v.Color
+              }
+
+          let bytecode =
+              [
+                  Effect.ofFunction vertexMain
+                  Effect.ofFunction fragmentMain
+              ]
+              |> Effect.compose
+              |> EffectBytecodeCompiler.compileWithOutputs [
+                  EffectOutput.color<V4f> 0
+              ]
+
+          printfn "stages=%d inputs=%d cbuffers=%d" bytecode.Stages.Length bytecode.Reflection.InputAttributes.Count bytecode.Reflection.ConstantBuffers.Count
+
+          for constantBuffer in bytecode.Reflection.ConstantBuffers do
+              printfn "cbuffer %s members=%d" constantBuffer.Name constantBuffer.Members.Length
+              for memberInfo in constantBuffer.Members do
+                  printfn "member %s key=%s" memberInfo.RawName memberInfo.KeyInfo.KeyName
+
+          let hasWorldViewProjection =
+              bytecode.Reflection.ConstantBuffers
+              |> Seq.collect (fun constantBuffer -> constantBuffer.Members)
+              |> Seq.exists (fun memberInfo -> memberInfo.KeyInfo.KeyName = "Transformation.WorldViewProjection")
+
+          if not hasWorldViewProjection then
+              failwith "Expected Transformation.WorldViewProjection reflection binding."
+          '@ | Set-Content -Path (Join-Path $project "Program.fs") -Encoding UTF8
+
+          dotnet run --project (Join-Path $project "FShadePackageSmoke.fsproj") --no-restore
+          if ($LASTEXITCODE -ne 0) {
+            echo "::error::FShade package smoke project failed."
+            exit 1
+          }
+
       - name: Publish to GitHub Packages
         shell: pwsh
         env:
