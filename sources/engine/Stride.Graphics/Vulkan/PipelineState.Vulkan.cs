@@ -238,8 +238,10 @@ namespace Stride.Graphics
                 }
             }
 
-            // Cleanup shader modules (since module is shared between each stage, cleaning first stage is enough)
-            GraphicsDevice.NativeDeviceApi.vkDestroyShaderModule(GraphicsDevice.NativeDevice, stages[0].module, allocator: null);
+            // Cleanup shader modules. SDSL normally shares one SPIR-V module across stages, but
+            // externally-produced bytecode may provide one module per stage.
+            foreach (var module in stages.Select(stage => stage.module).Distinct())
+                GraphicsDevice.NativeDeviceApi.vkDestroyShaderModule(GraphicsDevice.NativeDevice, module, allocator: null);
         }
 
         /// <inheritdoc/>
@@ -458,15 +460,10 @@ namespace Stride.Graphics
 
             IsCompute = false;
 
-            // Create shader module (shared by all stages)
-            var shaderBytecode = stages[0].Data;
-            GraphicsDevice.CheckResult(GraphicsDevice.NativeDeviceApi.vkCreateShaderModule(GraphicsDevice.NativeDevice, shaderBytecode, allocator: null, out var shaderModule));
-
             for (int i = 0; i < stages.Length; i++)
             {
                 var stage = stages[i];
-                if (!stage.Data.SequenceEqual(shaderBytecode))
-                    throw new InvalidOperationException("Vulkan: bytecode is expected to be the same for all stages");
+                GraphicsDevice.CheckResult(GraphicsDevice.NativeDeviceApi.vkCreateShaderModule(GraphicsDevice.NativeDevice, stage.Data, allocator: null, out var shaderModule));
 
                 if (stage.Stage == ShaderStage.Compute)
                     IsCompute = true;

@@ -37,6 +37,9 @@
       <Deploy Solution="Release|*" />
     </Project>
   </Folder>
+  <Folder Name="/Graphics/FShadeCodeOnly/">
+    <Project Path="Graphics/FShadeCodeOnly/FShadeCodeOnly.fsproj" />
+  </Folder>
   <Folder Name="/Graphics/MaterialShader/">
     <Project Path="Graphics/MaterialShader/MaterialShader.Game/MaterialShader.Game.csproj" />
     <Project Path="Graphics/MaterialShader/MaterialShader.Windows/MaterialShader.Windows.csproj">

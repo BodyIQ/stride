@@ -82,15 +82,15 @@ For a one-off local install, use `--force` so repeated same-version builds repla
 dotnet new install --force bin/packages/Stride.Templates.CodeOnly.4.4.0-dev.nupkg
 ```
 
-The generated `stride-macos-fsharp` project consumes `Stride.CommunityToolkit.CodeOnly` from NuGet. Generated projects include a `NuGet.config` that points at nuget.org and this fork's GitHub Packages feed. GitHub Packages still requires authenticated restore, so register the source once per machine:
+The generated `stride-macos-fsharp` project consumes upstream `Stride.CommunityToolkit` packages from nuget.org and pins the required `Stride.*` engine packages to this fork's version. Generated projects include a `NuGet.config` that points at nuget.org and this fork's GitHub Packages feed. GitHub Packages still requires authenticated restore, so register the source once per machine:
 
 ```bash
 dotnet nuget add source \
   --username GITHUB_USERNAME \
   --password GITHUB_PAT_WITH_READ_PACKAGES \
   --store-password-in-clear-text \
-  --name gurdasnijor-stride \
-  "https://nuget.pkg.github.com/gurdasnijor/index.json"
+  --name bodyiq-stride \
+  "https://nuget.pkg.github.com/BodyIQ/index.json"
 ```
 
 For persistent opt-in across builds, drop a `Directory.Build.user.props` in your checkout root (gitignored) with:
