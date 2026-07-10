@@ -74,6 +74,12 @@ jobs:
         with:
           workloads: ${{ inputs.platform-ios && inputs.platform-macos && 'ios macos' || inputs.platform-ios && 'ios' || 'macos' }}
 
+      - name: Install Android Workload
+        if: ${{ inputs.platform-android }}
+        uses: ./.github/actions/stride-workload
+        with:
+          workloads: android
+
       - name: Build packages
         shell: pwsh
         run: |
