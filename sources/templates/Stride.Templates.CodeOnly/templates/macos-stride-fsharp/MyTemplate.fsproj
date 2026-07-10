@@ -8,8 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Stride.CommunityToolkit" Version="1.0.0-preview.62" />
-    <PackageReference Include="Stride.CommunityToolkit.Skyboxes" Version="1.0.0-preview.62" />
     <PackageReference Include="Stride.Engine" Version="$EngineVersion$" />
     <PackageReference Include="Stride.Particles" Version="$EngineVersion$" />
     <PackageReference Include="Stride.Physics" Version="$EngineVersion$" />
